@@ -81,6 +81,11 @@ jobs:
       env:
         Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
 
+    - name: List All Files in Working Directory
+      run: |
+        echo "Recursively listing all files in $(pwd):"
+        ls -R
+
     # Create GitHub Release and upload artifacts
     - name: Create GitHub Release
       id: create_release
