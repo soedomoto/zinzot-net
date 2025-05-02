@@ -90,8 +90,7 @@ jobs:
       run: |
         mkdir -p ./dmg_temp
         cp -R ./ZinzotNet/bin/Release/net9.0-maccatalyst/ZinzotNet.app ./dmg_temp/
-        hdiutil create -volname "ZinzotNet" -srcfolder ./dmg_temp -ov -format UDZO ZinzotNet-v${{ env.APP_VERSION }}-maccatalyst.dmg
-        mv ZinzotNet-v${{ env.APP_VERSION }}-maccatalyst.dmg ./
+        hdiutil create -volname "ZinzotNet" -srcfolder ./dmg_temp -ov -format UDZO ZinzotNet.dmg
         rm -rf ./dmg_temp
   
     - name: Create GitHub Release
@@ -101,5 +100,5 @@ jobs:
         name: Release v${{ env.APP_VERSION }}
         draft: false
         prerelease: false
-        files: ZinzotNet-v${{ env.APP_VERSION }}-maccatalyst.dmg
+        files: ZinzotNet.dmg
         token: ${{ secrets.GITHUB_TOKEN }}
