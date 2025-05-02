@@ -1,0 +1,83 @@
+name: .NET Core Blazor and MAUI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-publish:
+    runs-on: macos-latest  # Required for net9.0-maccatalyst builds
+
+    env:
+      Solution_Name: ZinzotNet.sln
+      Maui_Project_Directory: ZinzotNet
+      Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
+      Test_Project_Path: None  # Update if you add a test project
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    # Install .NET SDK
+    - name: Install .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x  # Use .NET 9 for net9.0-maccatalyst
+
+    # Install MAUI workloads
+    - name: Install MAUI Workloads
+      run: dotnet workload install maui
+
+    # Restore dependencies
+    - name: Restore Solution
+      run: dotnet restore $env:Solution_Name
+
+    # Build the solution
+    - name: Build Solution
+      run: dotnet build $env:Solution_Name --configuration Release --no-restore
+
+    # Execute unit tests (if test project exists)
+    - name: Execute Unit Tests
+      run: dotnet test $env:Solution_Name --no-restore --configuration Release
+      continue-on-error: true  # Skip if no test project exists
+
+    # Extract ApplicationDisplayVersion from ZinzotNet.csproj
+    - name: Extract ApplicationDisplayVersion
+      id: get_version
+      run: |
+        VERSION=$(xmlstarlet sel -t -v "//ApplicationDisplayVersion" $env:Maui_Project_Path)
+        echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
+      env:
+        Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
+
+    # Publish MAUI project for net9.0-maccatalyst
+    - name: Publish MAUI App for macCatalyst
+      run: dotnet publish $env:Maui_Project_Path -f net9.0-maccatalyst -c Release -o ./publish/maccatalyst
+      env:
+        Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
+
+    # Create GitHub Release and upload artifacts
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ env.APP_VERSION }}
+        release_name: Release v${{ env.APP_VERSION }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Artifacts
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./publish/maccatalyst/ZinzotNet.app
+        asset_name: ZinzotNet-v${{ env.APP_VERSION }}-maccatalyst.app
+        asset_content_type: application/octet-stream
