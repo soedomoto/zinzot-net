@@ -104,6 +104,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./publish/maccatalyst/ZinzotNet-v${{ env.APP_VERSION }}-maccatalyst.app
+        asset_path: ./ZinzotNet/bin/Release/net9.0-maccatalyst/ZinzotNet.app
         asset_name: ZinzotNet-v${{ env.APP_VERSION }}-maccatalyst.app
         asset_content_type: application/octet-stream
