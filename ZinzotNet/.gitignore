@@ -1,0 +1,111 @@
+# .NET MAUI / .NET Core
+## Ignore Visual Studio temporary files, build results, and user-specific files
+bin/
+obj/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.sln.docstates
+
+## Ignore build output directories
+[Bb]in/
+[Oo]bj/
+
+## Ignore Visual Studio Code and JetBrains IDE files
+.vscode/
+.idea/
+*.code-workspace
+*.iml
+
+## Ignore NuGet packages and caches
+*.nupkg
+.nuget/
+packages/
+*.nuget.props
+*.nuget.targets
+
+## Ignore test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+## Ignore sensitive configuration files
+appsettings*.json
+appsettings.*.json
+secrets.json
+
+## Ignore logs
+*.log
+logs/
+*.logs
+
+## Ignore temporary files
+*.tmp
+*.temp
+*.bak
+*.cache
+*.swp
+
+## Ignore dependency directories
+node_modules/
+
+## Ignore publish profiles
+Properties/PublishProfiles/
+*.pubxml
+*.pubxml.user
+
+## Ignore environment-specific files
+.env
+.env.local
+.env.*.local
+
+## Ignore macOS and Windows system files
+.DS_Store
+Thumbs.db
+
+## .NET MAUI-specific ignores
+## Ignore platform-specific generated files
+Platforms/
+*.keystore
+*.aab
+*.apk
+*.appx
+*.appxbundle
+*.msix
+*.msixbundle
+*.pfx
+*.cer
+*.snk
+
+## Ignore iOS-specific files
+*.ipa
+*.xcarchive
+*.xcodeproj
+*.xcworkspace
+Pods/
+*.dSYM/
+
+## Ignore Android-specific files
+*.apk
+*.apks
+*.aab
+android/
+.gradle/
+build/
+*.keystore
+local.properties
+
+## Ignore Windows-specific files
+*.appx
+*.appxbundle
+*.msix
+*.msixbundle
+AppxManifest.xml
+
+## Ignore macOS-specific files
+*.app
+*.dmg
+
+## Ignore Azure-specific files
+*.azurePipelines.yml
+*.azure-pipelines.yml
