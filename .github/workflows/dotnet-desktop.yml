@@ -86,6 +86,14 @@ jobs:
         echo "Recursively listing all files in $(pwd):"
         ls -R
 
+    - name: Package ZinzotNet.app as DMG
+      run: |
+        mkdir -p ./dmg_temp
+        cp -R ./publish/maccatalyst/ZinzotNet.app ./dmg_temp/
+        hdiutil create -volname "ZinzotNet" -srcfolder ./dmg_temp -ov -format UDZO ZinzotNet-v${{ env.APP_VERSION }}-maccatalyst.dmg
+        mv ZinzotNet-v${{ env.APP_VERSION }}-maccatalyst.dmg ./
+        rm -rf ./dmg_temp
+  
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
@@ -93,5 +101,5 @@ jobs:
         name: Release v${{ env.APP_VERSION }}
         draft: false
         prerelease: false
-        files: ./publish/maccatalyst/ZinzotNet.app
+        files: ZinzotNet-v${{ env.APP_VERSION }}-maccatalyst.dmg
         token: ${{ secrets.GITHUB_TOKEN }}
