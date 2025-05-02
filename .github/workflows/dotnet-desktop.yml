@@ -86,24 +86,12 @@ jobs:
         echo "Recursively listing all files in $(pwd):"
         ls -R
 
-    # Create GitHub Release and upload artifacts
     - name: Create GitHub Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v2
       with:
         tag_name: v${{ env.APP_VERSION }}
-        release_name: Release v${{ env.APP_VERSION }}
+        name: Release v${{ env.APP_VERSION }}
         draft: false
         prerelease: false
-
-    - name: Upload Release Artifacts
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./ZinzotNet/bin/Release/net9.0-maccatalyst/ZinzotNet.app
-        asset_name: ZinzotNet-v${{ env.APP_VERSION }}-maccatalyst.app
-        asset_content_type: application/octet-stream
+        files: ./publish/maccatalyst/ZinzotNet.app
+        token: ${{ secrets.GITHUB_TOKEN }}
