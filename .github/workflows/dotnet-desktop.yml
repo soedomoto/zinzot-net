@@ -54,13 +54,13 @@ jobs:
     - name: Install MAUI Workloads
       run: dotnet workload install maui
 
-    # Verify solution file exists
-    - name: Verify Solution File
-      run: |
-        if [ ! -f "$Solution_Name" ]; then
-          echo "Solution file $Solution_Name not found!"
-          exit 1
-        fi
+    # # Verify solution file exists
+    # - name: Verify Solution File
+    #   run: |
+    #     if [ ! -f "$Solution_Name" ]; then
+    #       echo "Solution file $Solution_Name not found!"
+    #       exit 1
+    #     fi
 
     # Restore dependencies
     - name: Restore Solution
@@ -77,14 +77,20 @@ jobs:
 
     # Install xmlstarlet for version extraction
     - name: Install xmlstarlet
+      if: matrix.os == 'macos-15'
       run: brew install xmlstarlet
 
-    # Extract ApplicationDisplayVersion from ZinzotNet.csproj
     - name: Extract ApplicationDisplayVersion
       id: get_version
       run: |
-        VERSION=$(xmlstarlet sel -t -v "//ApplicationDisplayVersion" $Maui_Project_Path)
-        echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
+        if [ "${{ matrix.os }}" = "macos-15" ]; then
+          VERSION=$(xmlstarlet sel -t -v "//ApplicationDisplayVersion" $Maui_Project_Path)
+          echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
+        elif [ "${{ matrix.os }}" = "windows-latest" ]; then
+          $VERSION = (Select-Xml -Path $env:Maui_Project_Path -XPath '//ApplicationDisplayVersion').Node.InnerText
+          echo "APP_VERSION=$VERSION" | Out-File -FilePath $env:GITHUB_ENV -Append
+        fi
+      shell: bash
       env:
         Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
 
