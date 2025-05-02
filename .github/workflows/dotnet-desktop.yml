@@ -15,7 +15,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ macos-15, windows-latest, ubuntu-latest ]
+        os: [ macos-15, windows-latest ]
         include:
           - os: macos-15
             target: net9.0-maccatalyst
