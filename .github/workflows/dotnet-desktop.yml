@@ -25,10 +25,6 @@ jobs:
             target: net9.0-windows
             artifact: ZinzotNet-win.zip
             package-step: package-windows
-          - os: ubuntu-latest
-            target: net9.0
-            artifact: ZinzotNet-linux.tar.gz
-            package-step: package-linux
 
     env:
       Solution_Name: ZinzotNet.sln
