@@ -32,31 +32,43 @@ jobs:
     - name: Install MAUI Workloads
       run: dotnet workload install maui
 
+    # Verify solution file exists
+    - name: Verify Solution File
+      run: |
+        if [ ! -f "$Solution_Name" ]; then
+          echo "Solution file $Solution_Name not found!"
+          exit 1
+        fi
+
     # Restore dependencies
     - name: Restore Solution
-      run: dotnet restore $env:Solution_Name
+      run: dotnet restore $Solution_Name
 
     # Build the solution
     - name: Build Solution
-      run: dotnet build $env:Solution_Name --configuration Release --no-restore
+      run: dotnet build $Solution_Name --configuration Release --no-restore
 
     # Execute unit tests (if test project exists)
     - name: Execute Unit Tests
-      run: dotnet test $env:Solution_Name --no-restore --configuration Release
+      run: dotnet test $Solution_Name --no-restore --configuration Release
       continue-on-error: true  # Skip if no test project exists
+
+    # Install xmlstarlet for version extraction
+    - name: Install xmlstarlet
+      run: brew install xmlstarlet
 
     # Extract ApplicationDisplayVersion from ZinzotNet.csproj
     - name: Extract ApplicationDisplayVersion
       id: get_version
       run: |
-        VERSION=$(xmlstarlet sel -t -v "//ApplicationDisplayVersion" $env:Maui_Project_Path)
+        VERSION=$(xmlstarlet sel -t -v "//ApplicationDisplayVersion" $Maui_Project_Path)
         echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
       env:
         Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
 
     # Publish MAUI project for net9.0-maccatalyst
     - name: Publish MAUI App for macCatalyst
-      run: dotnet publish $env:Maui_Project_Path -f net9.0-maccatalyst -c Release -o ./publish/maccatalyst
+      run: dotnet publish $Maui_Project_Path -f net9.0-maccatalyst -c Release -o ./publish/maccatalyst
       env:
         Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
 
