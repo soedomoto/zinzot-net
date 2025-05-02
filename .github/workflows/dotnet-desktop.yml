@@ -12,13 +12,29 @@ permissions:
 
 jobs:
   build-and-publish:
-    runs-on: macos-15  # Required for net9.0-maccatalyst builds
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ macos-15, windows-latest, ubuntu-latest ]
+        include:
+          - os: macos-15
+            target: net9.0-maccatalyst
+            artifact: ZinzotNet.dmg
+            package-step: package-dmg
+          - os: windows-latest
+            target: net9.0-windows
+            artifact: ZinzotNet-win.zip
+            package-step: package-windows
+          - os: ubuntu-latest
+            target: net9.0
+            artifact: ZinzotNet-linux.tar.gz
+            package-step: package-linux
 
     env:
       Solution_Name: ZinzotNet.sln
       Maui_Project_Directory: ZinzotNet
       Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
-      Test_Project_Path: None  # Update if you add a test project
+      Test_Project_Path: None
 
     steps:
     - name: Checkout
@@ -27,6 +43,7 @@ jobs:
         fetch-depth: 0
     
     - name: Setup Xcode version
+      if: matrix.os == 'macos-15'
       uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: '16.3'
