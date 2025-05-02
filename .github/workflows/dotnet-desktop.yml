@@ -12,23 +12,7 @@ permissions:
 
 jobs:
   build-and-publish:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ macos-15, windows-latest, ubuntu-latest ]
-        include:
-          - os: macos-15
-            target: net9.0-maccatalyst
-            artifact: ZinzotNet.dmg
-            package-step: package-dmg
-          - os: windows-latest
-            target: net9.0-windows
-            artifact: ZinzotNet-win.zip
-            package-step: package-windows
-          - os: ubuntu-latest
-            target: net9.0
-            artifact: ZinzotNet-linux.tar.gz
-            package-step: package-linux
+    runs-on: macos-15  # Required for net9.0-maccatalyst builds
 
     env:
       Solution_Name: ZinzotNet.sln
@@ -43,7 +27,6 @@ jobs:
         fetch-depth: 0
     
     - name: Setup Xcode version
-      if: matrix.os == 'macos-15'
       uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: '16.3'
@@ -52,7 +35,7 @@ jobs:
     - name: Install .NET SDK
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x  # Use .NET 9 for all targets
+        dotnet-version: 9.0.x  # Use .NET 9 for net9.0-maccatalyst
 
     # Install MAUI workloads
     - name: Install MAUI Workloads
@@ -79,84 +62,37 @@ jobs:
       run: dotnet test $Solution_Name --no-restore --configuration Release
       continue-on-error: true  # Skip if no test project exists
 
-    # Install xmlstarlet for version extraction (macOS and Linux)
-    - name: Install xmlstarlet (macOS/Linux)
-      if: matrix.os != 'windows-latest'
-      run: |
-        if [[ "${{ matrix.os }}" == "macos-15" ]]; then
-          brew install xmlstarlet
-        else
-          sudo apt-get update && sudo apt-get install -y xmlstarlet
-        fi
-
-    # Install PowerShell for version extraction on Windows
-    - name: Install PowerShell (Windows)
-      if: matrix.os == 'windows-latest'
-      uses: microsoft/powershell@v1
+    # Install xmlstarlet for version extraction
+    - name: Install xmlstarlet
+      run: brew install xmlstarlet
 
     # Extract ApplicationDisplayVersion from ZinzotNet.csproj
     - name: Extract ApplicationDisplayVersion
       id: get_version
       run: |
-        if [ "${{ matrix.os }}" = "windows-latest" ]; then
-          VERSION=$(pwsh -Command "(Select-Xml -Path $env:Maui_Project_Path -XPath '//ApplicationDisplayVersion').Node.InnerText")
-          echo "APP_VERSION=$VERSION" | Out-File -FilePath $env:GITHUB_ENV -Append
-        else
-          VERSION=$(xmlstarlet sel -t -v "//ApplicationDisplayVersion" $Maui_Project_Path)
-          echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
-        fi
+        VERSION=$(xmlstarlet sel -t -v "//ApplicationDisplayVersion" $Maui_Project_Path)
+        echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
       env:
         Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
 
-    # Publish MAUI project for the specified target
-    - name: Publish MAUI App
-      run: dotnet publish $Maui_Project_Path -f ${{ matrix.target }} -c Release -o ./publish/${{ matrix.target }}
+    # Publish MAUI project for net9.0-maccatalyst
+    - name: Publish MAUI App for macCatalyst
+      run: dotnet publish $Maui_Project_Path -f net9.0-maccatalyst -c Release -o ./publish/maccatalyst
       env:
         Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
 
-    # Package macCatalyst as DMG
-    - name: Package macCatalyst DMG
-      if: matrix.package-step == 'package-dmg'
+    - name: List All Files in Working Directory
+      run: |
+        echo "Recursively listing all files in $(pwd):"
+        ls -R
+
+    - name: Package ZinzotNet.app as DMG
       run: |
         mkdir -p ./dmg_temp
-        cp -R ./publish/net9.0-maccatalyst/ZinzotNet.app ./dmg_temp/
+        cp -R ./ZinzotNet/bin/Release/net9.0-maccatalyst/ZinzotNet.app ./dmg_temp/
         hdiutil create -volname "ZinzotNet" -srcfolder ./dmg_temp -ov -format UDZO ZinzotNet.dmg
         rm -rf ./dmg_temp
-
-    # Package Windows as ZIP
-    - name: Package Windows ZIP
-      if: matrix.package-step == 'package-windows'
-      run: |
-        Compress-Archive -Path ./publish/net9.0-windows/* -DestinationPath ZinzotNet-win.zip
-      shell: pwsh
-
-    # Package Linux as tar.gz
-    - name: Package Linux tar.gz
-      if: matrix.package-step == 'package-linux'
-      run: |
-        tar -czf ZinzotNet-linux.tar.gz -C ./publish/net9.0 .
   
-    # Upload artifact for release
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ matrix.artifact }}
-        path: ${{ matrix.artifact }}
-
-  create-release:
-    needs: build-and-publish
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    # Download all artifacts
-    - name: Download Artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: artifacts
-
-    # Create GitHub Release
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
@@ -164,10 +100,5 @@ jobs:
         name: Release v${{ env.APP_VERSION }}
         draft: false
         prerelease: false
-        files: |
-          artifacts/ZinzotNet.dmg/ZinzotNet.dmg
-          artifacts/ZinzotNet-win.zip/ZinzotNet-win.zip
-          artifacts/ZinzotNet-linux.tar.gz/ZinzotNet-linux.tar.gz
+        files: ZinzotNet.dmg
         token: ${{ secrets.GITHUB_TOKEN }}
-      env:
-        APP_VERSION: ${{ needs.build-and-publish.outputs.app_version }}
