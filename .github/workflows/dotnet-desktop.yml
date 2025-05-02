@@ -89,7 +89,7 @@ jobs:
     - name: Package ZinzotNet.app as DMG
       run: |
         mkdir -p ./dmg_temp
-        cp -R ./publish/maccatalyst/ZinzotNet.app ./dmg_temp/
+        cp -R ./ZinzotNet/bin/Release/net9.0-maccatalyst/ZinzotNet.app ./dmg_temp/
         hdiutil create -volname "ZinzotNet" -srcfolder ./dmg_temp -ov -format UDZO ZinzotNet-v${{ env.APP_VERSION }}-maccatalyst.dmg
         mv ZinzotNet-v${{ env.APP_VERSION }}-maccatalyst.dmg ./
         rm -rf ./dmg_temp
