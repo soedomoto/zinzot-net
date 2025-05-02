@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   build-and-publish:
-    runs-on: macos-latest  # Required for net9.0-maccatalyst builds
+    runs-on: macos-15  # Required for net9.0-maccatalyst builds
 
     env:
       Solution_Name: ZinzotNet.sln
