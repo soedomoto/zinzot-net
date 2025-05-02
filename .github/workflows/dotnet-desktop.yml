@@ -81,16 +81,19 @@ jobs:
       run: brew install xmlstarlet
 
     - name: Extract ApplicationDisplayVersion
-      id: get_version
+      if: matrix.os == 'macos-15'
       run: |
-        if [ "${{ matrix.os }}" = "macos-15" ]; then
-          VERSION=$(xmlstarlet sel -t -v "//ApplicationDisplayVersion" $Maui_Project_Path)
-          echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
-        elif [ "${{ matrix.os }}" = "windows-latest" ]; then
-          $VERSION = (Select-Xml -Path $env:Maui_Project_Path -XPath '//ApplicationDisplayVersion').Node.InnerText
-          echo "APP_VERSION=$VERSION" | Out-File -FilePath $env:GITHUB_ENV -Append
-        fi
-      shell: bash
+        VERSION=$(xmlstarlet sel -t -v "//ApplicationDisplayVersion" $Maui_Project_Path)
+        echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
+      env:
+        Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
+
+    - name: Extract ApplicationDisplayVersion
+      if: matrix.os == 'windows-latest'
+      run: |
+        $VERSION = (Select-Xml -Path $env:Maui_Project_Path -XPath '//ApplicationDisplayVersion').Node.InnerText
+        echo "APP_VERSION=$VERSION" | Out-File -FilePath $env:GITHUB_ENV -Append
+      shell: pwsh
       env:
         Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
 
