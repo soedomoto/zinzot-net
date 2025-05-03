@@ -2,16 +2,16 @@
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('windows'))">
     <TargetFrameworks>net9.0-windows</TargetFrameworks>
     <TargetPlatformVersion>10.0.17763.0</TargetPlatformVersion>
-    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('macos'))">
     <TargetFrameworks>net9.0-maccatalyst</TargetFrameworks>
     <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers>
-    <SupportedOSPlatformVersion>15.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 
+  <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
   <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+  <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
   <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
   <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 
