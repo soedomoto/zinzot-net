@@ -18,12 +18,12 @@ jobs:
         os: [ macos-15, windows-latest ]
         include:
           - os: macos-15
-            maui-version: maui-windows
+            maui-version: maui-maccatalyst
             target: net9.0-maccatalyst
             artifact: ZinzotNet.dmg
             package-step: package-dmg
           - os: windows-latest
-            maui-version: maui-maccatalyst
+            maui-version: maui-windows
             target: net9.0-windows
             artifact: ZinzotNet-win.zip
             package-step: package-windows
