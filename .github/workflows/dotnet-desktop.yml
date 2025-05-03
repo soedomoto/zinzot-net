@@ -20,11 +20,13 @@ jobs:
           - os: macos-15
             maui-version: maui-maccatalyst
             target: net9.0-maccatalyst
+            taget-args: 
             artifact: ZinzotNet.dmg
             package-step: package-dmg
           - os: windows-latest
             maui-version: maui-windows
             target: net9.0-windows
+            taget-args: -p:TargetPlatformVersion=10.0.17763.0
             artifact: ZinzotNet-win.zip
             package-step: package-windows
 
@@ -45,41 +47,7 @@ jobs:
       uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: '16.3'
-
-    # - name: Download Windows 10 SDK Installer
-    #   if: matrix.os == 'windows-latest'
-    #   run: |
-    #     Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?linkid=2120843" -OutFile "winsdksetup.exe"
     
-    # - name: Install Windows 10 SDK
-    #   if: matrix.os == 'windows-latest'
-    #   run: |
-    #     .\winsdksetup.exe /quiet /norestart /features OptionId.DesktopCPPx64
-
-    # - name: Check if Windows 10 SDK exists
-    #   if: matrix.os == 'windows-latest'
-    #   shell: powershell
-    #   run: |
-    #     $sdkPath = "C:\Program Files (x86)\Windows Kits\10\Lib"
-    #     if (Test-Path $sdkPath) {
-    #       "Windows 10 SDK directory exists. Listing contents:"
-    #       Get-ChildItem $sdkPath
-    #     } else {
-    #       "Windows 10 SDK directory NOT found."
-    #     }
-        
-    # - name: Install .NET SDK
-    #   uses: actions/setup-dotnet@v4
-    #   with:
-    #     dotnet-version: 9.0.x
-
-    # - name: Install Chocolatey
-    #   if: matrix.os == 'windows-latest'
-    #   run: |
-    #     Set-ExecutionPolicy Bypass -Scope Process -Force;
-    #     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072;
-    #     iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-
     - name: Install Windows 10 SDK
       if: matrix.os == 'windows-latest'
       run: |
@@ -96,7 +64,7 @@ jobs:
     - name: Build Solution for macOS
       run: |
         dotnet build ZinzotNet.Shared/ZinzotNet.Shared.csproj -f net9.0 --configuration Release --no-restore
-        dotnet build ZinzotNet/ZinzotNet.csproj -f ${{ matrix.target }} --configuration Release --no-restore
+        dotnet build ZinzotNet/ZinzotNet.csproj -f ${{ matrix.target }} --configuration Release --no-restore ${{ matrix.target-args }}
 
     # - name: Build Solution for Windows
     #   if: matrix.os == 'windows-latest'
