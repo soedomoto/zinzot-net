@@ -43,6 +43,22 @@ jobs:
       uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: '16.3'
+
+    - name: Cache Windows 10 SDK
+      id: cache-windows-sdk
+      uses: actions/cache@v4
+      with:
+        path: C:\Program Files (x86)\Windows Kits\10
+        key: windows-sdk-${{ runner.os }}-2083338
+        restore-keys: |
+          windows-sdk-${{ runner.os }}-
+
+    - name: Install Windows 10 SDK
+      if: steps.cache-windows-sdk.outputs.cache-hit != 'true' && matrix.os == 'windows-latest'
+      run: |
+        Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?linkid=2083338" -OutFile "winsdksetup.exe"
+        Start-Process -Wait -FilePath "winsdksetup.exe" -ArgumentList "/quiet" -PassThru
+      shell: powershell
         
     - name: Install .NET SDK
       uses: actions/setup-dotnet@v4
