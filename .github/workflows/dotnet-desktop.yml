@@ -68,7 +68,12 @@ jobs:
 
     # Build the solution
     - name: Build Solution
-      run: dotnet build $Solution_Name --configuration Release --no-restore
+      if: matrix.os == 'macos-15'
+      run: dotnet build $Solution_Name --configuration Release --no-restore -f net9.0-maccatalyst
+
+    - name: Build Solution
+      if: matrix.os == 'windows-latest'
+      run: dotnet build $Solution_Name --configuration Release --no-restore -f net9.0-windows
 
     # Execute unit tests (if test project exists)
     - name: Execute Unit Tests
