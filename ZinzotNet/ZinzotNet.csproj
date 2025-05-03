@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('windows'))">
     <TargetFrameworks>net9.0-windows</TargetFrameworks>
+    <TargetPlatformVersion>10.0.17763.0</TargetPlatformVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('macos'))">
