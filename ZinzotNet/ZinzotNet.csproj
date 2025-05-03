@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('macos'))">
-    <TargetPlatformIdentifier>MacCatalyst</TargetPlatformIdentifier>
+    <TargetFrameworks>net9.0-maccatalyst</TargetFrameworks>
     <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers>
   </PropertyGroup>
 
