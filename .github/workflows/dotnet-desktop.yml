@@ -61,7 +61,9 @@ jobs:
         dotnet workload list
       
     - name: Restore Solution
-      run: dotnet restore $Solution_Name ${{ matrix.runtime-identifier }}
+      run: |
+        dotnet restore $Solution_Name ${{ matrix.runtime-identifier }}
+        dotnet restore $Solution_Name -r any
       
     - name: Build Solution for macOS
       run: |
