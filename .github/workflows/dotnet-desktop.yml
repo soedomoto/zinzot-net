@@ -46,15 +46,15 @@ jobs:
       with:
         xcode-version: '16.3'
 
-    - name: Download Windows 10 SDK Installer
-      if: matrix.os == 'windows-latest'
-      run: |
-        Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?linkid=2120843" -OutFile "winsdksetup.exe"
+    # - name: Download Windows 10 SDK Installer
+    #   if: matrix.os == 'windows-latest'
+    #   run: |
+    #     Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?linkid=2120843" -OutFile "winsdksetup.exe"
     
-    - name: Install Windows 10 SDK
-      if: matrix.os == 'windows-latest'
-      run: |
-        .\winsdksetup.exe /quiet /norestart /features OptionId.DesktopCPPx64
+    # - name: Install Windows 10 SDK
+    #   if: matrix.os == 'windows-latest'
+    #   run: |
+    #     .\winsdksetup.exe /quiet /norestart /features OptionId.DesktopCPPx64
 
     # - name: Check if Windows 10 SDK exists
     #   if: matrix.os == 'windows-latest'
