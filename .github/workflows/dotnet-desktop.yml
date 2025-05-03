@@ -70,14 +70,18 @@ jobs:
     - name: Build Solution
       if: matrix.os == 'macos-15'
       run: dotnet build $Solution_Name --configuration Release --no-restore -f net9.0-maccatalyst
+      env:
+        Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
 
     - name: Build Solution
       if: matrix.os == 'windows-latest'
-      run: dotnet build $Solution_Name --configuration Release --no-restore -f net9.0-windows
+      run: dotnet build $env:Maui_Project_Path --configuration Release --no-restore -f net9.0-windows
+      env:
+        Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
 
     # Execute unit tests (if test project exists)
     - name: Execute Unit Tests
-      run: dotnet test $Solution_Name --no-restore --configuration Release
+      run: dotnet test $Maui_Project_Path --no-restore --configuration Release
       continue-on-error: true  # Skip if no test project exists
 
     # Install xmlstarlet for version extraction
