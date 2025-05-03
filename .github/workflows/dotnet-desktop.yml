@@ -62,6 +62,7 @@ jobs:
       
     - name: Restore Solution
       run: |
+        dotnet restore $Solution_Name -r any -p:SelfContained=true
         dotnet restore $Solution_Name ${{ matrix.runtime-identifier }} -p:SelfContained=true
       
     - name: Build Solution for macOS
