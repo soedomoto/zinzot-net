@@ -67,40 +67,16 @@ jobs:
         } else {
           "Windows 10 SDK directory NOT found."
         }
-
-    # - name: Cache Windows 10 SDK
-    #   id: cache-windows-sdk
-    #   uses: actions/cache@v4
-    #   with:
-    #     path: C:\Program Files (x86)\Windows Kits\10
-    #     key: windows-sdk-${{ runner.os }}-2083338
-    #     restore-keys: |
-    #       windows-sdk-${{ runner.os }}-
-
-    # - name: Install Windows 10 SDK
-    #   if: steps.cache-windows-sdk.outputs.cache-hit != 'true' && matrix.os == 'windows-latest'
-    #   run: |
-    #     Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?linkid=2083338" -OutFile "winsdksetup.exe"
-    #     Start-Process -Wait -FilePath "winsdksetup.exe" -ArgumentList "/quiet" -PassThru
-    #   shell: powershell
         
     - name: Install .NET SDK
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
-
-    # - name: Cache MAUI Workloads
-    #   uses: actions/cache@v4
-    #   with:
-    #     path: |
-    #       ~/.dotnet/sdk-manifests
-    #       ~/.dotnet/packs
-    #     key: ${{ runner.os }}-maui-workloads-${{ hashFiles('**/*.csproj') }}
-    #     restore-keys: |
-    #       ${{ runner.os }}-maui-workloads-
         
     - name: Install MAUI Workloads
-      run: dotnet workload install ${{ matrix.maui-version }} --skip-manifest-update
+      run: |
+        dotnet workload install ${{ matrix.maui-version }} --skip-manifest-update
+        dotnet workload list
       
     - name: Restore Solution
       run: dotnet restore $Solution_Name
