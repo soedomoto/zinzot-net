@@ -17,12 +17,12 @@ jobs:
       matrix:
         os: [ windows-latest ]
         include:
-          - os: macos-15
-            maui-version: maui-maccatalyst
-            target: net9.0-maccatalyst
-            taget-args: 
-            artifact: ZinzotNet.dmg
-            package-step: package-dmg
+          # - os: macos-15
+          #   maui-version: maui-maccatalyst
+          #   target: net9.0-maccatalyst
+          #   taget-args: 
+          #   artifact: ZinzotNet.dmg
+          #   package-step: package-dmg
           - os: windows-latest
             maui-version: maui-windows
             target: net9.0-windows
