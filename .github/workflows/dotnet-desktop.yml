@@ -52,12 +52,13 @@ jobs:
     - name: Install MAUI Workloads
       run: dotnet workload install maui
       
-    # - name: Restore Solution
-    #   run: dotnet restore $Solution_Name
+    - name: Restore Solution
+      run: dotnet restore $Solution_Name
       
     - name: Build Solution for macOS
-      if: matrix.os == 'macos-15'
-      run: dotnet build $Solution_Name --configuration Release -f net9.0-maccatalyst
+      run: |
+        dotnet build ZinzotNet.Shared/ZinzotNet.Shared.csproj -f net9.0 --configuration Release --no-restore
+        dotnet build ZinzotNet/ZinzotNet.csproj -f ${{ matrix.target }} --configuration Release --no-restore
       # env:
       #   Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
 
