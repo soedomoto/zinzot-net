@@ -18,10 +18,12 @@ jobs:
         os: [ macos-15, windows-latest ]
         include:
           - os: macos-15
+            maui-version: maui-windows
             target: net9.0-maccatalyst
             artifact: ZinzotNet.dmg
             package-step: package-dmg
           - os: windows-latest
+            maui-version: maui-maccatalyst
             target: net9.0-windows
             artifact: ZinzotNet-win.zip
             package-step: package-windows
@@ -44,39 +46,39 @@ jobs:
       with:
         xcode-version: '16.3'
 
-    - name: Cache Windows 10 SDK
-      id: cache-windows-sdk
-      uses: actions/cache@v4
-      with:
-        path: C:\Program Files (x86)\Windows Kits\10
-        key: windows-sdk-${{ runner.os }}-2083338
-        restore-keys: |
-          windows-sdk-${{ runner.os }}-
+    # - name: Cache Windows 10 SDK
+    #   id: cache-windows-sdk
+    #   uses: actions/cache@v4
+    #   with:
+    #     path: C:\Program Files (x86)\Windows Kits\10
+    #     key: windows-sdk-${{ runner.os }}-2083338
+    #     restore-keys: |
+    #       windows-sdk-${{ runner.os }}-
 
-    - name: Install Windows 10 SDK
-      if: steps.cache-windows-sdk.outputs.cache-hit != 'true' && matrix.os == 'windows-latest'
-      run: |
-        Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?linkid=2083338" -OutFile "winsdksetup.exe"
-        Start-Process -Wait -FilePath "winsdksetup.exe" -ArgumentList "/quiet" -PassThru
-      shell: powershell
+    # - name: Install Windows 10 SDK
+    #   if: steps.cache-windows-sdk.outputs.cache-hit != 'true' && matrix.os == 'windows-latest'
+    #   run: |
+    #     Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?linkid=2083338" -OutFile "winsdksetup.exe"
+    #     Start-Process -Wait -FilePath "winsdksetup.exe" -ArgumentList "/quiet" -PassThru
+    #   shell: powershell
         
     - name: Install .NET SDK
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
 
-    - name: Cache MAUI Workloads
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.dotnet/sdk-manifests
-          ~/.dotnet/packs
-        key: ${{ runner.os }}-maui-workloads-${{ hashFiles('**/*.csproj') }}
-        restore-keys: |
-          ${{ runner.os }}-maui-workloads-
+    # - name: Cache MAUI Workloads
+    #   uses: actions/cache@v4
+    #   with:
+    #     path: |
+    #       ~/.dotnet/sdk-manifests
+    #       ~/.dotnet/packs
+    #     key: ${{ runner.os }}-maui-workloads-${{ hashFiles('**/*.csproj') }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-maui-workloads-
         
     - name: Install MAUI Workloads
-      run: dotnet workload install maui
+      run: dotnet workload install ${{ matrix.maui-version }} --skip-manifest-update
       
     - name: Restore Solution
       run: dotnet restore $Solution_Name
