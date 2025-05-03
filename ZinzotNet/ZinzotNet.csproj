@@ -8,9 +8,14 @@
     <TargetPlatformVersion>10.0.17763.0</TargetPlatformVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('macos'))">
+    <TargetPlatformIdentifier>MacCatalyst</TargetPlatformIdentifier>
+    <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers>
+  </PropertyGroup>
+
+
   <PropertyGroup>
     <!-- <TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst;net9.0-windows</TargetFrameworks> -->
-    <TargetFrameworks>net9.0-maccatalyst;net9.0-windows</TargetFrameworks>
     <!-- <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks> -->
     <!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
     <!-- <TargetFrameworks>$(TargetFrameworks);net9.0-tizen</TargetFrameworks> -->
@@ -21,7 +26,6 @@
       The Mac App Store will NOT accept apps with ONLY maccatalyst-arm64 indicated;
       either BOTH runtimes must be indicated or ONLY macatalyst-x64. -->
     <!-- For example: <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers> -->
-    <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers>
 
     <OutputType>Exe</OutputType>
     <RootNamespace>ZinzotNet</RootNamespace>
