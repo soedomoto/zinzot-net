@@ -21,12 +21,14 @@ jobs:
           #   maui-version: maui-maccatalyst
           #   target: net9.0-maccatalyst
           #   target-args: 
+          #   runtime-identifier: 
           #   artifact: ZinzotNet.dmg
           #   package-step: package-dmg
           - os: windows-latest
             maui-version: maui-windows
             target: net9.0-windows
             target-args: -p:TargetPlatformVersion=10.0.17763.0
+            runtime-identifier: -r win-x64
             artifact: ZinzotNet-win.zip
             package-step: package-windows
 
@@ -59,12 +61,12 @@ jobs:
         dotnet workload list
       
     - name: Restore Solution
-      run: dotnet restore $Solution_Name
+      run: dotnet restore $Solution_Name ${{ matrix.runtime-identifier }}
       
     - name: Build Solution for macOS
       run: |
         dotnet build ZinzotNet.Shared/ZinzotNet.Shared.csproj -f net9.0 --configuration Release --no-restore
-        dotnet build ZinzotNet/ZinzotNet.csproj -f ${{ matrix.target }} --configuration Release --no-restore ${{ matrix.target-args }}
+        dotnet build ZinzotNet/ZinzotNet.csproj -f ${{ matrix.target }} --configuration Release --no-restore ${{ matrix.runtime-identifier }} ${{ matrix.target-args }}
 
     # - name: Build Solution for Windows
     #   if: matrix.os == 'windows-latest'
