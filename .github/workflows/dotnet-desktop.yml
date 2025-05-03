@@ -20,13 +20,13 @@ jobs:
           # - os: macos-15
           #   maui-version: maui-maccatalyst
           #   target: net9.0-maccatalyst
-          #   taget-args: 
+          #   target-args: 
           #   artifact: ZinzotNet.dmg
           #   package-step: package-dmg
           - os: windows-latest
             maui-version: maui-windows
             target: net9.0-windows
-            taget-args: -p:TargetPlatformVersion=10.0.17763.0
+            target-args: -p:TargetPlatformVersion=10.0.17763.0
             artifact: ZinzotNet-win.zip
             package-step: package-windows
 
