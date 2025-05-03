@@ -83,7 +83,7 @@ jobs:
     - name: Install Windows 10 SDK
       if: matrix.os == 'windows-latest'
       run: |
-        choco install windows-sdk-10.0.17763
+        choco install windows-sdk-10.0
         
     - name: Install MAUI Workloads
       run: |
