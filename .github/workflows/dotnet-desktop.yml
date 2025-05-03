@@ -56,22 +56,26 @@ jobs:
       run: |
         .\winsdksetup.exe /quiet /norestart /features OptionId.DesktopCPPx64
 
-    - name: Check if Windows 10 SDK exists
-      if: matrix.os == 'windows-latest'
-      shell: powershell
-      run: |
-        $sdkPath = "C:\Program Files (x86)\Windows Kits\10\Lib"
-        if (Test-Path $sdkPath) {
-          "Windows 10 SDK directory exists. Listing contents:"
-          Get-ChildItem $sdkPath
-        } else {
-          "Windows 10 SDK directory NOT found."
-        }
+    # - name: Check if Windows 10 SDK exists
+    #   if: matrix.os == 'windows-latest'
+    #   shell: powershell
+    #   run: |
+    #     $sdkPath = "C:\Program Files (x86)\Windows Kits\10\Lib"
+    #     if (Test-Path $sdkPath) {
+    #       "Windows 10 SDK directory exists. Listing contents:"
+    #       Get-ChildItem $sdkPath
+    #     } else {
+    #       "Windows 10 SDK directory NOT found."
+    #     }
         
-    - name: Install .NET SDK
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 9.0.x
+    # - name: Install .NET SDK
+    #   uses: actions/setup-dotnet@v4
+    #   with:
+    #     dotnet-version: 9.0.x
+
+    - name: Install Windows 10 SDK
+      run: |
+        choco install windows-sdk-10.0.17763
         
     - name: Install MAUI Workloads
       run: |
@@ -85,8 +89,6 @@ jobs:
       run: |
         dotnet build ZinzotNet.Shared/ZinzotNet.Shared.csproj -f net9.0 --configuration Release --no-restore
         dotnet build ZinzotNet/ZinzotNet.csproj -f ${{ matrix.target }} --configuration Release --no-restore
-      # env:
-      #   Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
 
     # - name: Build Solution for Windows
     #   if: matrix.os == 'windows-latest'
