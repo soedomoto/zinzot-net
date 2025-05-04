@@ -72,7 +72,7 @@ jobs:
 
     - name: Restore Solution
       run: |
-        dotnet restore $Solution_Name -p:SelfContained=true
+        dotnet restore $Solution_Name
       
     # - name: Build Solution for macOS
     #   run: |
