@@ -29,8 +29,8 @@ public static class MauiProgram
         return builder.Build();
     }
 
-    public static void Main(string[] args)
-    {
-        var app = CreateMauiApp();
-    }
+    // public static void Main(string[] args)
+    // {
+    //     var app = CreateMauiApp();
+    // }
 }

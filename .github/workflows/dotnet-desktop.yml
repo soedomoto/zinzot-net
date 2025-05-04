@@ -15,18 +15,18 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ windows-latest ]
+        os: [ macos-15, windows-latest ]
         include:
-          # - os: macos-15
-          #   maui-version: maui-maccatalyst
-          #   target: net9.0-maccatalyst
-          #   target-args: 
-          #   runtime-identifier: 
-          #   artifact: ZinzotNet.dmg
-          #   package-step: package-dmg
+          - os: macos-15
+            maui-version: maui-maccatalyst
+            target: net8.0-maccatalyst
+            target-args: 
+            runtime-identifier: 
+            artifact: ZinzotNet.dmg
+            package-step: package-dmg
           - os: windows-latest
             maui-version: maui-windows
-            target: net9.0-windows
+            target: net8.0-windows10.0.19041.0
             target-args: -p:TargetPlatformVersion=10.0.17763.0
             runtime-identifier: -r win-x64
             artifact: ZinzotNet-win.zip
@@ -54,25 +54,39 @@ jobs:
       if: matrix.os == 'windows-latest'
       run: |
         choco install windows-sdk-10.0
+
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
         
     - name: Install MAUI Workloads
       run: |
         dotnet workload install ${{ matrix.maui-version }} --skip-manifest-update
         dotnet workload list
       
+    # - name: Restore Solution
+    #   run: |
+    #     dotnet restore $Solution_Name -r any -p:SelfContained=true
+    #     dotnet restore $Solution_Name ${{ matrix.runtime-identifier }} -p:SelfContained=true
+
     - name: Restore Solution
       run: |
-        dotnet restore $Solution_Name -r any -p:SelfContained=true
-        dotnet restore $Solution_Name ${{ matrix.runtime-identifier }} -p:SelfContained=true
+        dotnet restore $Solution_Name -p:SelfContained=true
       
-    - name: Build Solution for macOS
+    # - name: Build Solution for macOS
+    #   run: |
+    #     dotnet build ZinzotNet.Shared/ZinzotNet.Shared.csproj -f net8.0 --configuration Release --no-restore
+    #     dotnet build ZinzotNet/ZinzotNet.csproj -f ${{ matrix.target }} --configuration Release --no-restore ${{ matrix.runtime-identifier }} ${{ matrix.target-args }}
+
+    - name: Build Solution
       run: |
-        dotnet build ZinzotNet.Shared/ZinzotNet.Shared.csproj -f net9.0 --configuration Release --no-restore
-        dotnet build ZinzotNet/ZinzotNet.csproj -f ${{ matrix.target }} --configuration Release --no-restore ${{ matrix.runtime-identifier }} ${{ matrix.target-args }}
+        dotnet build ZinzotNet.Shared/ZinzotNet.Shared.csproj -f net8.0 --configuration Release --no-restore
+        dotnet build ZinzotNet/ZinzotNet.csproj -f ${{ matrix.target }} --configuration Release --no-restore
 
     # - name: Build Solution for Windows
     #   if: matrix.os == 'windows-latest'
-    #   run: dotnet build $env:Maui_Project_Path --configuration Release --no-restore -f net9.0-windows
+    #   run: dotnet build $env:Maui_Project_Path --configuration Release --no-restore -f net8.0-windows
     #   env:
     #     Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
 
@@ -102,7 +116,7 @@ jobs:
     #     Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
 
     # - name: Publish MAUI App for macCatalyst
-    #   run: dotnet publish $Maui_Project_Path -f net9.0-maccatalyst -c Release -o ./publish/maccatalyst
+    #   run: dotnet publish $Maui_Project_Path -f net8.0-maccatalyst -c Release -o ./publish/maccatalyst
     #   env:
     #     Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
 
@@ -114,7 +128,7 @@ jobs:
     # - name: Package ZinzotNet.app as DMG
     #   run: |
     #     mkdir -p ./dmg_temp
-    #     cp -R ./ZinzotNet/bin/Release/net9.0-maccatalyst/ZinzotNet.app ./dmg_temp/
+    #     cp -R ./ZinzotNet/bin/Release/net8.0-maccatalyst/ZinzotNet.app ./dmg_temp/
     #     hdiutil create -volname "ZinzotNet" -srcfolder ./dmg_temp -ov -format UDZO ZinzotNet.dmg
     #     rm -rf ./dmg_temp
   
