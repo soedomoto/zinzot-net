@@ -81,7 +81,7 @@ jobs:
 
     - name: List files in ZinzotNet\obj recursively
       if: matrix.os == 'windows-latest'
-      run: dir ZinzotNet\obj\Release /s /p
+      run: dir ZinzotNet\obj /s /p
       shell: cmd
     
     - name: Build Solution
