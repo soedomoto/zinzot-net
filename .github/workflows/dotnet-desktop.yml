@@ -79,7 +79,7 @@ jobs:
     #     dotnet build ZinzotNet.Shared/ZinzotNet.Shared.csproj -f net8.0 --configuration Release --no-restore
     #     dotnet build ZinzotNet/ZinzotNet.csproj -f ${{ matrix.target }} --configuration Release --no-restore ${{ matrix.runtime-identifier }} ${{ matrix.target-args }}
 
-    - name: List files in ZinzotNet\obj\Release recursively
+    - name: List files in ZinzotNet\obj recursively
       if: matrix.os == 'windows-latest'
       run: dir ZinzotNet\obj\Release /s /p
       shell: cmd
