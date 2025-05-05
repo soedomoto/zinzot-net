@@ -81,44 +81,27 @@ jobs:
 
     - name: Build Solution
       run: |
-        dotnet build ZinzotNet.Shared/ZinzotNet.Shared.csproj -f net8.0 --configuration Release --no-restore
-        dotnet build ZinzotNet/ZinzotNet.csproj -f ${{ matrix.target }} --configuration Release --no-restore
+        dotnet build ZinzotNet.Shared/ZinzotNet.Shared.csproj -f net8.0 --no-restore
+        dotnet build ZinzotNet/ZinzotNet.csproj -f ${{ matrix.target }} --no-restore
 
-    # - name: Build Solution for Windows
-    #   if: matrix.os == 'windows-latest'
-    #   run: dotnet build $env:Maui_Project_Path --configuration Release --no-restore -f net8.0-windows
-    #   env:
-    #     Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
+    - name: Extract ApplicationDisplayVersion
+      if: matrix.os == 'macos-15'
+      run: |
+        brew install xmlstarlet
+        ID=$(xmlstarlet sel -t -v "//ApplicationId" $Maui_Project_Path)
+        echo "APP_ID=$ID" >> $GITHUB_ENV
+        VERSION=$(xmlstarlet sel -t -v "//ApplicationDisplayVersion" $Maui_Project_Path)
+        echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
 
-    # - name: Execute Unit Tests
-    #   run: dotnet test $Maui_Project_Path --no-restore --configuration Release
-    #   continue-on-error: true  # Skip if no test project exists
-
-    # - name: Install xmlstarlet
-    #   if: matrix.os == 'macos-15'
-    #   run: brew install xmlstarlet
-
-    # - name: Extract ApplicationDisplayVersion
-    #   if: matrix.os == 'macos-15'
-    #   run: |
-    #     VERSION=$(xmlstarlet sel -t -v "//ApplicationDisplayVersion" $Maui_Project_Path)
-    #     echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
-    #   env:
-    #     Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
-
-    # - name: Extract ApplicationDisplayVersion
-    #   if: matrix.os == 'windows-latest'
-    #   run: |
-    #     $VERSION = (Select-Xml -Path $env:Maui_Project_Path -XPath '//ApplicationDisplayVersion').Node.InnerText
-    #     echo "APP_VERSION=$VERSION" | Out-File -FilePath $env:GITHUB_ENV -Append
-    #   shell: pwsh
-    #   env:
-    #     Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
+    - name: Extract ApplicationDisplayVersion
+      if: matrix.os == 'windows-latest'
+      run: |
+        $VERSION = (Select-Xml -Path $env:Maui_Project_Path -XPath '//ApplicationDisplayVersion').Node.InnerText
+        echo "APP_VERSION=$VERSION" | Out-File -FilePath $env:GITHUB_ENV -Append
+      shell: pwsh
 
     # - name: Publish MAUI App for macCatalyst
-    #   run: dotnet publish $Maui_Project_Path -f net8.0-maccatalyst -c Release -o ./publish/maccatalyst
-    #   env:
-    #     Maui_Project_Path: ZinzotNet/ZinzotNet.csproj
+    #   run: dotnet publish ZinzotNet/ZinzotNet.csproj -f ${{ matrix.target }} -c Release --no-restore
 
     # - name: List All Files in Working Directory
     #   run: |
@@ -131,6 +114,15 @@ jobs:
     #     cp -R ./ZinzotNet/bin/Release/net8.0-maccatalyst/ZinzotNet.app ./dmg_temp/
     #     hdiutil create -volname "ZinzotNet" -srcfolder ./dmg_temp -ov -format UDZO ZinzotNet.dmg
     #     rm -rf ./dmg_temp
+
+    - name: Package ZinzotNet.app as .pkg
+      if: matrix.os == 'macos-15'
+      run: |
+        pkgbuild --install-location /Applications \
+          --component ZinzotNet/bin/Debug/net8.0-maccatalyst/ZinzotNet.app \
+          --identifier ${{ env.APP_ID }} \
+          --version ${{ env.APP_VERSION }} \
+          ZinzotNet.pkg
   
     # - name: Create GitHub Release
     #   uses: softprops/action-gh-release@v2

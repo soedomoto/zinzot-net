@@ -30,12 +30,13 @@
         <EnableDefaultCssItems>false</EnableDefaultCssItems>
         <Nullable>enable</Nullable>
         <PublishReadyToRun>false</PublishReadyToRun>
+        <AotAssemblies>false</AotAssemblies>
 
         <!-- Display name -->
         <ApplicationTitle>Zinzot</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>com.soedomoto.zinzotnet</ApplicationId>
+        <ApplicationId>com.soedomoto.zinzot</ApplicationId>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
