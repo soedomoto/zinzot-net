@@ -84,7 +84,7 @@ jobs:
         dotnet build ZinzotNet.Shared/ZinzotNet.Shared.csproj -f net8.0 --no-restore
         dotnet build ZinzotNet/ZinzotNet.csproj -f ${{ matrix.target }} --no-restore
 
-    - name: Extract ApplicationDisplayVersion
+    - name: Extract Project Properties for macOS
       if: matrix.os == 'macos-15'
       run: |
         brew install xmlstarlet
@@ -93,7 +93,7 @@ jobs:
         VERSION=$(xmlstarlet sel -t -v "//ApplicationDisplayVersion" $Maui_Project_Path)
         echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
 
-    - name: Extract ApplicationDisplayVersion
+    - name: Extract Project Properties for Windows
       if: matrix.os == 'windows-latest'
       run: |
         $VERSION = (Select-Xml -Path $env:Maui_Project_Path -XPath '//ApplicationDisplayVersion').Node.InnerText
@@ -115,7 +115,7 @@ jobs:
     #     hdiutil create -volname "ZinzotNet" -srcfolder ./dmg_temp -ov -format UDZO ZinzotNet.dmg
     #     rm -rf ./dmg_temp
 
-    - name: Package ZinzotNet.app as .pkg
+    - name: Package ZinzotNet.app as .pkg for macOS
       if: matrix.os == 'macos-15'
       run: |
         pkgbuild --install-location /Applications \
@@ -123,6 +123,11 @@ jobs:
           --identifier ${{ env.APP_ID }} \
           --version ${{ env.APP_VERSION }} \
           ZinzotNet.pkg
+
+    - name: List files and directories for Windows
+      if: matrix.os == 'windows-latest'
+      run: dir ZinzotNet\bin\x64\Release\net8.0-windows10.0.19041.0 /s /a
+      shell: cmd
   
     # - name: Create GitHub Release
     #   uses: softprops/action-gh-release@v2
