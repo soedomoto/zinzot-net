@@ -99,10 +99,17 @@ jobs:
           --version ${{ env.APP_VERSION }} \
           ZinzotNet.pkg
 
-    - name: List files and directories for Windows
+    - name: Package ZinzotNet.app as .dmg for macOS
+      run: |
+        mkdir -p ./dmg_temp
+        cp -R ZinzotNet/bin/Debug/net8.0-maccatalyst/ZinzotNet.app ./dmg_temp/
+        hdiutil create -volname "ZinzotNet" -srcfolder ./dmg_temp -ov -format UDZO ZinzotNet.dmg
+        rm -rf ./dmg_temp
+
+    - name: Package ZinzotNet as .zip for Windows
       if: matrix.os == 'windows-latest'
-      run: dir ZinzotNet\bin\x64\Debug\net8.0-windows10.0.19041.0 /s /a
-      shell: cmd
+      run: Compress-Archive -Path ZinzotNet\bin\x64\Debug\net8.0-windows10.0.19041.0 -DestinationPath ZinzotNet.zip
+      shell: pwsh
   
     # - name: Create GitHub Release
     #   uses: softprops/action-gh-release@v2
