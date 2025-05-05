@@ -65,20 +65,10 @@ jobs:
         dotnet workload install ${{ matrix.maui-version }} --skip-manifest-update
         dotnet workload list
       
-    # - name: Restore Solution
-    #   run: |
-    #     dotnet restore $Solution_Name -r any -p:SelfContained=true
-    #     dotnet restore $Solution_Name ${{ matrix.runtime-identifier }} -p:SelfContained=true
-
     - name: Restore Solution
       run: |
         dotnet restore $Solution_Name
       
-    # - name: Build Solution for macOS
-    #   run: |
-    #     dotnet build ZinzotNet.Shared/ZinzotNet.Shared.csproj -f net8.0 --configuration Release --no-restore
-    #     dotnet build ZinzotNet/ZinzotNet.csproj -f ${{ matrix.target }} --configuration Release --no-restore ${{ matrix.runtime-identifier }} ${{ matrix.target-args }}
-
     - name: Build Solution
       run: |
         dotnet build ZinzotNet.Shared/ZinzotNet.Shared.csproj -f net8.0 --no-restore
@@ -100,21 +90,6 @@ jobs:
         echo "APP_VERSION=$VERSION" | Out-File -FilePath $env:GITHUB_ENV -Append
       shell: pwsh
 
-    # - name: Publish MAUI App for macCatalyst
-    #   run: dotnet publish ZinzotNet/ZinzotNet.csproj -f ${{ matrix.target }} -c Release --no-restore
-
-    # - name: List All Files in Working Directory
-    #   run: |
-    #     echo "Recursively listing all files in $(pwd):"
-    #     ls -R
-
-    # - name: Package ZinzotNet.app as DMG
-    #   run: |
-    #     mkdir -p ./dmg_temp
-    #     cp -R ./ZinzotNet/bin/Release/net8.0-maccatalyst/ZinzotNet.app ./dmg_temp/
-    #     hdiutil create -volname "ZinzotNet" -srcfolder ./dmg_temp -ov -format UDZO ZinzotNet.dmg
-    #     rm -rf ./dmg_temp
-
     - name: Package ZinzotNet.app as .pkg for macOS
       if: matrix.os == 'macos-15'
       run: |
@@ -126,7 +101,7 @@ jobs:
 
     - name: List files and directories for Windows
       if: matrix.os == 'windows-latest'
-      run: dir ZinzotNet\bin\x64\Release\net8.0-windows10.0.19041.0 /s /a
+      run: dir ZinzotNet\bin\x64\Debug\net8.0-windows10.0.19041.0 /s /a
       shell: cmd
   
     # - name: Create GitHub Release
