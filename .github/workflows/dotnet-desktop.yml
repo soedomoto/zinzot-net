@@ -22,7 +22,7 @@ jobs:
             target: net8.0-maccatalyst
             target-args: 
             runtime-identifier: 
-            artifact: ZinzotNet.dmg
+            artifact: ZinzotNetDesktop.dmg
             package-step: package-dmg
           - os: windows-latest
             maui-version: maui-windows
@@ -73,6 +73,7 @@ jobs:
       run: |
         dotnet build ZinzotNet.Shared/ZinzotNet.Shared.csproj -f net8.0 --no-restore
         dotnet build ZinzotNet/ZinzotNet.csproj -f ${{ matrix.target }} --no-restore
+        dotnet publish ZinzotNet.Web/ZinzotNet.Web.csproj -f net8.0 --no-restore
 
     - name: Extract Project Properties for macOS
       if: matrix.os == 'macos-15'
@@ -97,42 +98,48 @@ jobs:
           --component ZinzotNet/bin/Debug/net8.0-maccatalyst/ZinzotNet.app \
           --identifier ${{ env.APP_ID }} \
           --version ${{ env.APP_VERSION }} \
-          ZinzotNet.pkg
+          ZinzotNetDesktop.pkg
 
     - name: Package ZinzotNet.app as .dmg for macOS
       if: matrix.os == 'macos-15'
       run: |
         mkdir -p ./dmg_temp
         cp -R ZinzotNet/bin/Debug/net8.0-maccatalyst/ZinzotNet.app ./dmg_temp/
-        hdiutil create -volname "ZinzotNet" -srcfolder ./dmg_temp -ov -format UDZO ZinzotNet.dmg
+        hdiutil create -volname "ZinzotNet" -srcfolder ./dmg_temp -ov -format UDZO ZinzotNetDesktop.dmg
         rm -rf ./dmg_temp
+    
+    - name: Package ZinzotNetWeb as .zip for macOS
+      if: matrix.os == 'macos-15'
+      run: |
+        zip -r ZinzotNetWeb.zip ZinzotNet.Web/bin/Release/net8.0/publish
 
     - name: Package ZinzotNet as .zip for Windows
       if: matrix.os == 'windows-latest'
-      run: Compress-Archive -Path ZinzotNet\bin\x64\Debug\net8.0-windows10.0.19041.0 -DestinationPath ZinzotNet.zip
+      run: |
+        Compress-Archive -Path ZinzotNet\bin\x64\Debug\net8.0-windows10.0.19041.0 -DestinationPath ZinzotNetDesktop.zip
       shell: pwsh
   
-    - name: Create GitHub Release for macOS
-      if: matrix.os == 'macos-15'
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: v${{ env.APP_VERSION }}
-        name: Release v${{ env.APP_VERSION }}
-        draft: false
-        prerelease: false
-        files: |
-            ZinzotNet.dmg
-            ZinzotNet.pkg
-        token: ${{ secrets.GITHUB_TOKEN }}
+    # - name: Create GitHub Release for macOS
+    #   if: matrix.os == 'macos-15'
+    #   uses: softprops/action-gh-release@v2
+    #   with:
+    #     tag_name: v${{ env.APP_VERSION }}
+    #     name: Release v${{ env.APP_VERSION }}
+    #     draft: false
+    #     prerelease: false
+    #     files: |
+    #         ZinzotNetDesktop.dmg
+    #         ZinzotNetDesktop.pkg
+    #     token: ${{ secrets.GITHUB_TOKEN }}
   
-    - name: Create GitHub Release for Windows
-      if: matrix.os == 'windows-latest'
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: v${{ env.APP_VERSION }}
-        name: Release v${{ env.APP_VERSION }}
-        draft: false
-        prerelease: false
-        files: |
-            ZinzotNet.zip
-        token: ${{ secrets.GITHUB_TOKEN }}
+    # - name: Create GitHub Release for Windows
+    #   if: matrix.os == 'windows-latest'
+    #   uses: softprops/action-gh-release@v2
+    #   with:
+    #     tag_name: v${{ env.APP_VERSION }}
+    #     name: Release v${{ env.APP_VERSION }}
+    #     draft: false
+    #     prerelease: false
+    #     files: |
+    #         ZinzotNetDesktop.zip
+    #     token: ${{ secrets.GITHUB_TOKEN }}
