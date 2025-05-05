@@ -100,6 +100,7 @@ jobs:
           ZinzotNet.pkg
 
     - name: Package ZinzotNet.app as .dmg for macOS
+      if: matrix.os == 'macos-15'
       run: |
         mkdir -p ./dmg_temp
         cp -R ZinzotNet/bin/Debug/net8.0-maccatalyst/ZinzotNet.app ./dmg_temp/
@@ -111,12 +112,27 @@ jobs:
       run: Compress-Archive -Path ZinzotNet\bin\x64\Debug\net8.0-windows10.0.19041.0 -DestinationPath ZinzotNet.zip
       shell: pwsh
   
-    # - name: Create GitHub Release
-    #   uses: softprops/action-gh-release@v2
-    #   with:
-    #     tag_name: v${{ env.APP_VERSION }}
-    #     name: Release v${{ env.APP_VERSION }}
-    #     draft: false
-    #     prerelease: false
-    #     files: ZinzotNet.dmg
-    #     token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Create GitHub Release for macOS
+      if: matrix.os == 'macos-15'
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v${{ env.APP_VERSION }}
+        name: Release v${{ env.APP_VERSION }}
+        draft: false
+        prerelease: false
+        files: |
+            ZinzotNet.dmg
+            ZinzotNet.pkg
+        token: ${{ secrets.GITHUB_TOKEN }}
+  
+    - name: Create GitHub Release for Windows
+      if: matrix.os == 'windows-latest'
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v${{ env.APP_VERSION }}
+        name: Release v${{ env.APP_VERSION }}
+        draft: false
+        prerelease: false
+        files: |
+            ZinzotNet.zip
+        token: ${{ secrets.GITHUB_TOKEN }}
