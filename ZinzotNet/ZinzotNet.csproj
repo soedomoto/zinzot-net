@@ -32,13 +32,13 @@
         <PublishReadyToRun>false</PublishReadyToRun>
 
         <!-- Display name -->
-        <ApplicationTitle>ZinzotNet</ApplicationTitle>
+        <ApplicationTitle>Zinzot</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>com.companyname.zinzotnet</ApplicationId>
+        <ApplicationId>com.soedomoto.zinzotnet</ApplicationId>
 
         <!-- Versions -->
-        <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+        <ApplicationDisplayVersion>1.0.0-alpha1</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
 
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>
@@ -72,6 +72,10 @@
         <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\ZinzotNet.Shared\ZinzotNet.Shared.csproj" />
     </ItemGroup>
 
 </Project>

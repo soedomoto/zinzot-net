@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using ZinzotNet.Shared.Services;
+using ZinzotNet.Services;
 
 namespace ZinzotNet;
 
@@ -14,6 +16,7 @@ public static class MauiProgram
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 			});
 
+		builder.Services.AddSingleton<IFormFactor, FormFactor>();
 		builder.Services.AddMauiBlazorWebView();
 
 #if DEBUG
