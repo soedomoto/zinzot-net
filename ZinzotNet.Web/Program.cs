@@ -1,6 +1,10 @@
 using ZinzotNet.Web.Components;
 using ZinzotNet.Shared.Services;
 using ZinzotNet.Web.Services;
+using ZinzotNet.Services;
+using Syncfusion.Blazor;
+
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Mzg0NzcwOUAzMjM5MmUzMDJlMzAzYjMyMzkzYkQvTFpOU21iWHZHNWNoU2pKcTZaZFdPMjE2U29raDZnOEZkTTdQbEhhYVk9");
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +13,10 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 // Add device-specific services used by the ZinzotNet.Shared project
+builder.Services.AddSyncfusionBlazor();
+
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
+builder.Services.AddSingleton<SampleService>();
 
 var app = builder.Build();
 

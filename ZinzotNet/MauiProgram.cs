@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using ZinzotNet.Shared.Services;
 using ZinzotNet.Services;
+using Syncfusion.Blazor;
 
 namespace ZinzotNet;
 
@@ -8,6 +9,8 @@ public static class MauiProgram
 {
 	public static MauiApp CreateMauiApp()
 	{
+		Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Mzg0NzcwOUAzMjM5MmUzMDJlMzAzYjMyMzkzYkQvTFpOU21iWHZHNWNoU2pKcTZaZFdPMjE2U29raDZnOEZkTTdQbEhhYVk9");
+	
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
@@ -16,8 +19,11 @@ public static class MauiProgram
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 			});
 
-		builder.Services.AddSingleton<IFormFactor, FormFactor>();
 		builder.Services.AddMauiBlazorWebView();
+		builder.Services.AddSyncfusionBlazor();
+
+		builder.Services.AddSingleton<IFormFactor, FormFactor>();
+		builder.Services.AddSingleton<SampleService>();
 
 #if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();
