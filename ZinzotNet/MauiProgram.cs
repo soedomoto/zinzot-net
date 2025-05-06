@@ -21,14 +21,13 @@ public static class MauiProgram
 
 		builder.Services.AddMauiBlazorWebView();
 		builder.Services.AddSyncfusionBlazor();
+		builder.Services.AddAntDesign();
 
-		builder.Services.AddSingleton<IFormFactor, FormFactor>();
 		builder.Services.AddSingleton<IFormFactor, FormFactor>();
 		builder.Services.AddScoped<ISupabaseService, SupabaseService>();
 		builder.Services.AddSingleton<IS3Service, S3Service>();
 		builder.Services.AddScoped<TableReferenceState>();
 		builder.Services.AddScoped<DetailReferenceState>();
-		builder.Services.AddSingleton<SampleService>();
 		builder.Services.AddSingleton<SampleService>();
 
 #if DEBUG
