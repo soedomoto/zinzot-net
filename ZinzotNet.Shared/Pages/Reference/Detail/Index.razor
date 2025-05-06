@@ -1,0 +1,158 @@
+﻿@using AntDesign
+@using AntDesign.ProLayout
+@using AntDesign.TableModels
+@using System.ComponentModel.DataAnnotations
+@using static OneOf.Types.TrueFalseOrNull
+@using System.Text.Json
+@using ZinzotNet.Models
+@using ZinzotNet.Pages.Reference.Detail
+@using ZinzotNet.Services
+
+@inject NavigationManager NavigationManager
+
+@page "/reference/{*Id}"
+
+<div>
+    <PageContainer Title="Reference">
+        <Breadcrumb>
+            <Breadcrumb>
+                <BreadcrumbItem>Home</BreadcrumbItem>
+                <BreadcrumbItem>Reference</BreadcrumbItem>
+            </Breadcrumb>
+        </Breadcrumb>
+        <ChildContent>
+            <Table TItem="TableReferenceModel" @ref="_table" RemoteDataSource DataSource="TableState._dataSource"
+                Total="TableState._total" Loading="TableState._loading" PageIndex="TableState._query.PageIndex"
+                PageSize="TableState._query.PageSize" OnChange="OnChange">
+                <ColumnDefinitions Context="row">
+                    @* <Selection /> *@
+                    <PropertyColumn Property="c => c.ItemID" Sortable Filterable
+                        DefaultSortOrder="@(TableState._query.SortModel.FirstOrDefault(x => x.FieldName == "ItemID")?.SortDirection)">
+                        <a href="reference/@row.ItemID">@row.ItemID</a>
+                    </PropertyColumn>
+                    <PropertyColumn Property="c => c.Title" Sortable Filterable
+                        DefaultSortOrder="@(TableState._query.SortModel.FirstOrDefault(x => x.FieldName == "Title")?.SortDirection)">
+                        @row.Title
+                    </PropertyColumn>
+                    @* <GenerateColumns Definitions="@((n, c) => { c.Filterable = true; c.Sortable = true; })" /> *@
+                    @* <ActionColumn Title="Action">
+                        <a @onclick="() => StartEdit(row)">Edit</a>
+                        <a @onclick="() => Delete(row)">Delete</a>
+                    </ActionColumn> *@
+                </ColumnDefinitions>
+            </Table>
+            <Drawer Visible="Id != null" Placement="DrawerPlacement.Right" Width="500"
+                OnClose="@(() => NavigationManager.NavigateTo("/reference"))">
+                <Form Model="@DetailState._dataSource" Layout="FormLayout.Vertical" Loading="@DetailState._loading">
+                    <FormItem Label="Item Type">
+                        <Input @bind-Value="@context.ItemType" />
+                    </FormItem>
+                    <FormItem Label="Title">
+                        <Input @bind-Value="@context.Title" />
+                    </FormItem>
+                    @foreach (var item in @context.ItemCreators)
+                    {
+                        <FormItem Label="@item.CreatorType.CapitalizeFirstLetter()">
+                            <InputGroup Compact>
+                                <Input @bind-Value="@item.Creator.FirstName" />
+                                <Input @bind-Value="@item.Creator.LastName" />
+                            </InputGroup>
+                        </FormItem>
+                    }
+                    <FormItem Label="Publication Title">
+                        <Input @bind-Value="@context.PublicationTitle" />
+                    </FormItem>
+                    <FormItem Label="Volume">
+                        <Input @bind-Value="@context.Volume" />
+                    </FormItem>
+                    <FormItem Label="Issue">
+                        <Input @bind-Value="@context.Issue" />
+                    </FormItem>
+                    <FormItem Label="Pages">
+                        <Input @bind-Value="@context.Pages" />
+                    </FormItem>
+                    <FormItem Label="Date">
+                        <Input @bind-Value="@context.Date" />
+                    </FormItem>
+                    <FormItem Label="Series">
+                        <Input @bind-Value="@context.Series" />
+                    </FormItem>
+                    <FormItem Label="Journal Abbreviation">
+                        <Input @bind-Value="@context.JournalAbbreviation" />
+                    </FormItem>
+                    <FormItem Label="Language">
+                        <Input @bind-Value="@context.Language" />
+                    </FormItem>
+                    <FormItem Label="DOI">
+                        <Input @bind-Value="@context.DOI" />
+                    </FormItem>
+                    <FormItem Label="ISSN">
+                        <Input @bind-Value="@context.ISSN" />
+                    </FormItem>
+                    <FormItem Label="Short Title">
+                        <Input @bind-Value="@context.ShortTitle" />
+                    </FormItem>
+                    <FormItem Label="URL">
+                        <Input @bind-Value="@context.Url" />
+                    </FormItem>
+                    <FormItem Label="Access Date">
+                        <Input @bind-Value="@context.AccessDate" />
+                    </FormItem>
+                    <FormItem Label="Library Catalog">
+                        <Input @bind-Value="@context.LibraryCatalog" />
+                    </FormItem>
+                    <FormItem Label="Extra">
+                        <Input @bind-Value="@context.Extra" />
+                    </FormItem>
+                    @* <FormItem>
+                        <Button Type="primary" OnClick="@(() => Save())">Save</Button>
+                        <Button OnClick="@(() => NavigationManager.NavigateTo("/reference"))">Cancel</Button>
+                    </FormItem> *@
+                </Form>
+                <Form Model="@DetailState._dataSource" Layout="FormLayout.Vertical">
+                    <FormItem Label="Abstract">
+                        <TextArea AutoSize @bind-Value="@context.AbstractNote" />
+                    </FormItem>
+                </Form>
+                @* <Form Model="@DetailState._dataSource" Layout="FormLayout.Vertical">
+                    @foreach (var att in @context.Attachments)
+                    {
+                        var attachment = att;
+                        <FormItem Label="Attachment">
+                            <Input @bind-Value="@attachment" />
+                        </FormItem>
+                    }
+                </Form> *@
+
+                @foreach (var att in @DetailState._dataSource.Attachments ?? [])
+                {
+                    @* <BlazorBootstrap.PdfViewer Url="@att" /> *@
+                }
+            </Drawer>
+        </ChildContent>
+    </PageContainer>
+</div>
+
+@code {
+    [Inject] public TableReferenceState TableState { get; set; }
+    [Inject] public DetailReferenceState DetailState { get; set; }
+    [Parameter] public string Id { get; set; }
+    private ITable _table;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await DetailState.OnParamChange(Id);
+    }
+
+    public async Task OnChange(QueryModel<TableReferenceModel> query)
+    {
+        var equal = JsonSerializer.Serialize(TableState._query) == JsonSerializer.Serialize(query);
+        if (equal)
+        {
+            return;
+        }
+
+        await TableState.OnTableChange(query);
+    }
+}

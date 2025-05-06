@@ -1,0 +1,57 @@
+﻿@using AntDesign
+@using AntDesign.ProLayout
+@using AntDesign.TableModels
+@using System.ComponentModel.DataAnnotations
+@using ZinzotNet.Models
+@using ZinzotNet.Services
+
+@page "/reference"
+
+<div>
+    <PageContainer Title="Reference">
+        <Breadcrumb>
+            <Breadcrumb>
+                <BreadcrumbItem>Home</BreadcrumbItem>
+                <BreadcrumbItem>Reference</BreadcrumbItem>
+            </Breadcrumb>
+        </Breadcrumb>
+        <ChildContent>
+            <Table TItem="TableReferenceModel" @ref="_table" RemoteDataSource DataSource="State._dataSource"
+                Total="State._total" Loading="State._loading" PageIndex="State._query.PageIndex"
+                PageSize="State._query.PageSize" OnChange="State.OnTableChange">
+                <ColumnDefinitions Context="row">
+                    @* <Selection /> *@
+                    <PropertyColumn Property="c => c.ItemID" Sortable Filterable
+                        DefaultSortOrder="@(State._query.SortModel.FirstOrDefault(x => x.FieldName == "ItemID")?.SortDirection)">
+                        <a href="reference/@row.ItemID">@row.ItemID</a>
+                    </PropertyColumn>
+                    <PropertyColumn Property="c => c.Title" Sortable Filterable
+                        DefaultSortOrder="@(State._query.SortModel.FirstOrDefault(x => x.FieldName == "Title")?.SortDirection)">
+                        @row.Title
+                    </PropertyColumn>
+                    @* <GenerateColumns Definitions="@((n, c) => { c.Filterable = true; c.Sortable = true; })" /> *@
+                    @* <ActionColumn Title="Action">
+                        <a @onclick="() => StartEdit(row)">Edit</a>
+                        <a @onclick="() => Delete(row)">Delete</a>
+                    </ActionColumn> *@
+                </ColumnDefinitions>
+            </Table>
+        </ChildContent>
+    </PageContainer>
+</div>
+
+@code {
+    [Inject] public TableReferenceState State { get; set; }
+    [Inject] public DetailReferenceState DetailState { get; set; }
+    private ITable _table;
+
+    async Task OnInitializedasync()
+    {
+        await base.OnInitializedAsync();
+        await State._OnTableChange();
+        DetailState._dataSource = new()
+        {
+            Attachments = [],
+        };
+    }
+}

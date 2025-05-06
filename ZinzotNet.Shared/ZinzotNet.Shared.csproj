@@ -6,6 +6,52 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <!-- SUPABASE_URL=$SUPABASE_URL SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY S3_ENDPOINT=$S3_ENDPOINT S3_REGION=$S3_REGION S3_ACCESS_KEY=$S3_ACCESS_KEY S3_SECRET_KEY=$S3_SECRET_KEY S3_BUCKET_NAME=$S3_BUCKET_NAME dotnet build ZinzotNet.Web -->
+
+  <Target Name="PrintEnvVars" BeforeTargets="Build">
+    <Message Text="Environment Variable SUPABASE_URL: $(SUPABASE_URL)" Importance="High" />
+    <Message Text="Environment Variable SUPABASE_ANON_KEY: $(SUPABASE_ANON_KEY)" Importance="High" />
+    <Message Text="Environment Variable S3_ENDPOINT: $(S3_ENDPOINT)" Importance="High" />
+    <Message Text="Environment Variable S3_REGION: $(S3_REGION)" Importance="High" />
+    <Message Text="Environment Variable S3_ACCESS_KEY: $(S3_ACCESS_KEY)" Importance="High" />
+    <Message Text="Environment Variable S3_SECRET_KEY: $(S3_SECRET_KEY)" Importance="High" />
+    <Message Text="Environment Variable S3_BUCKET_NAME: $(S3_BUCKET_NAME)" Importance="High" />
+    <Message Text="Environment Variable TargetName: $(TargetName)" Importance="High" />
+  </Target>
+
+  <Target Name="BackupConstants" BeforeTargets="BeforeCompile">
+    <Copy SourceFiles="Constants.cs" DestinationFiles="Constants.txt" />
+  </Target>
+
+  <Target Name="FillConstants" BeforeTargets="BeforeCompile" AfterTargets="BackupConstants">
+    <Exec Condition="$([MSBuild]::IsOSPlatform('windows'))"
+      Command="powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+        &quot;$$text = Get-Content -Raw 'Constants.txt'; ^
+        $$text = $$text -replace 'SUPABASE_URL', '$(SUPABASE_URL)' ^
+                        -replace 'SUPABASE_ANON_KEY', '$(SUPABASE_ANON_KEY)' ^
+                        -replace 'S3_ENDPOINT', '$(S3_ENDPOINT)' ^
+                        -replace 'S3_REGION', '$(S3_REGION)' ^
+                        -replace 'S3_ACCESS_KEY', '$(S3_ACCESS_KEY)' ^
+                        -replace 'S3_SECRET_KEY', '$(S3_SECRET_KEY)' ^
+                        -replace 'S3_BUCKET_NAME', '$(S3_BUCKET_NAME)'; ^
+        Set-Content 'Constants.cs' $$text&quot;" />
+
+    <Exec Condition="!$([MSBuild]::IsOSPlatform('Windows'))"
+      Command="sh -c &quot;sed -e 's#SUPABASE_URL#$(SUPABASE_URL)#g' -e 's#SUPABASE_ANON_KEY#$(SUPABASE_ANON_KEY)#g' -e 's#S3_ENDPOINT#$(S3_ENDPOINT)#g' -e 's#S3_REGION#$(S3_REGION)#g' -e 's#S3_ACCESS_KEY#$(S3_ACCESS_KEY)#g' -e 's#S3_SECRET_KEY#$(S3_SECRET_KEY)#g' -e 's#S3_BUCKET_NAME#$(S3_BUCKET_NAME)#g' Constants.txt > Constants.cs&quot;" />
+  </Target>
+
+  <Target Name="RemoveConstants" AfterTargets="AfterCompile">
+    <Delete Files="Constants.cs" />
+  </Target>
+
+  <Target Name="RestoreConstants" AfterTargets="RemoveConstants">
+    <Copy SourceFiles="Constants.txt" DestinationFiles="Constants.cs" />
+  </Target>
+
+  <Target Name="RemoveBackupConstants" AfterTargets="RestoreConstants">
+    <Delete Files="Constants.txt" />
+  </Target>
+  
   <ItemGroup>
     <SupportedPlatform Include="browser" />
   </ItemGroup>

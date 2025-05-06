@@ -14,6 +14,7 @@ builder.Services.AddRazorComponents()
 
 // Add device-specific services used by the ZinzotNet.Shared project
 builder.Services.AddSyncfusionBlazor();
+builder.Services.AddAntDesign();
 
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 builder.Services.AddScoped<ISupabaseService, SupabaseService>();

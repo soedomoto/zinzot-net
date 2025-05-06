@@ -1,10 +1,8 @@
 using System.Reflection;
 using AntDesign.TableModels;
-using Supabase.Postgrest;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 using ZinzotNet.Models;
-using static Supabase.Postgrest.Constants;
 
 namespace ZinzotNet.Services
 {
@@ -31,7 +29,7 @@ namespace ZinzotNet.Services
 
                 var cresponse = await SupabaseService.Client
                     .From<TableReferenceModel>()
-                    .Count(Constants.CountType.Exact);
+                    .Count(Supabase.Postgrest.Constants.CountType.Exact);
 
                 var query = SupabaseService.Client
                     .From<TableReferenceModel>()
@@ -43,10 +41,10 @@ namespace ZinzotNet.Services
                     var colName = SupabaseModelExtensions.GetColumnName<TableReferenceModel>(sort.FieldName);
                     if (sort.SortDirection != AntDesign.SortDirection.None)
                     {
-                        var ordering = Constants.Ordering.Ascending;
+                        var ordering = Supabase.Postgrest.Constants.Ordering.Ascending;
                         if (sort.SortDirection == AntDesign.SortDirection.Descending)
                         {
-                            ordering = Constants.Ordering.Descending;
+                            ordering = Supabase.Postgrest.Constants.Ordering.Descending;
                         }
 
                         query = query.Order(colName, ordering);
@@ -96,7 +94,7 @@ namespace ZinzotNet.Services
                 var query = SupabaseService.Client
                     .From<ReferenceModel>()
                     .Select(referenceModelSel)
-                    .Filter("itemId", Operator.Equals, _id);
+                    .Filter("itemId", Supabase.Postgrest.Constants.Operator.Equals, _id);
 
                 var reference = (await query.Get())?.Models?.FirstOrDefault() ?? new ReferenceModel();
                 for (int i = 0; i < reference.Attachments.Length; i++)
