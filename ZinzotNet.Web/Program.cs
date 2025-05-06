@@ -16,6 +16,10 @@ builder.Services.AddRazorComponents()
 builder.Services.AddSyncfusionBlazor();
 
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
+builder.Services.AddScoped<ISupabaseService, SupabaseService>();
+builder.Services.AddSingleton<IS3Service, S3Service>();
+builder.Services.AddScoped<TableReferenceState>();
+builder.Services.AddScoped<DetailReferenceState>();
 builder.Services.AddSingleton<SampleService>();
 
 var app = builder.Build();
