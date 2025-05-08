@@ -10,7 +10,7 @@
 
 @inject NavigationManager NavigationManager
 
-@page "/reference/{*Id}"
+@page "/{Collection}/{*Id}"
 
 <div>
     <PageContainer Title="Reference">
@@ -42,7 +42,7 @@
                 </ColumnDefinitions>
             </Table>
             <Drawer Visible="Id != null" Placement="DrawerPlacement.Right" Width="500"
-                OnClose="@(() => NavigationManager.NavigateTo("/reference"))">
+                OnClose="@(() => NavigationManager.NavigateTo($"/{Collection}"))">
                 <Form Model="@DetailState._dataSource" Layout="FormLayout.Vertical" Loading="@DetailState._loading">
                     <FormItem Label="Item Type">
                         <Input @bind-Value="@context.ItemType" />
@@ -136,13 +136,22 @@
 @code {
     [Inject] public TableReferenceState TableState { get; set; }
     [Inject] public DetailReferenceState DetailState { get; set; }
-    [Parameter] public string Id { get; set; }
+    [Inject] public CollectionService CollectionService { get; set; }
+    [Parameter] public string? Id { get; set; }
+    [Parameter] public string? Collection { get; set; }
     private ITable _table;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         await DetailState.OnParamChange(Id);
+
+        CollectionService.SelectedCollection = Collection;
+    }
+
+    protected override void OnParametersSet()
+    {
+        CollectionService.SelectedCollection = Collection;
     }
 
     public async Task OnChange(QueryModel<TableReferenceModel> query)

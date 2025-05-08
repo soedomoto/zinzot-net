@@ -1,4 +1,9 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using AntDesign
+@using System.Text.Json
+@using ZinzotNet.Models
+@using ZinzotNet.Services
+
+<div class="top-row ps-3 navbar">
     <div class="container-fluid">
         <a class="navbar-brand" href="">ZinzotNet</a>
     </div>
@@ -7,36 +12,90 @@
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="datagrid/overview">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span>DataGrid
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="reference">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span>Reference
-            </NavLink>
-        </div>
-    </nav>
+    <Menu 
+        Mode="MenuMode.Inline" 
+        OpenKeys="CollectionService?.SelectedCollectionPaths.ToArray()"
+        SelectedKeys="CollectionService?.SelectedCollectionPaths.ToArray()"
+        Style="height: 100%; border-right: 0;"
+        OnMenuItemClicked="OnMenuItemClicked"
+    >
+        @foreach (var col in CollectionService?.NestedCollections) {
+            @RenderMenuItem(col)
+        }
+    </Menu>
 </div>
 
+@code {
+    [Inject] CollectionService CollectionService { get; set; }
+    [Inject] NavigationManager NavigationManager { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await CollectionService?.RefetchCollections();
+        CollectionService.PropertyChanged += (obj, ev) => {
+            StateHasChanged();
+        };
+    }
+
+    public void Dispose()
+    {
+        CollectionService.PropertyChanged -= (_, _) => StateHasChanged();
+    }
+
+    private RenderFragment RenderMenuItem(CollectionModel item) => builder =>
+    {
+        if (item.Children.Any())
+        {
+            builder.OpenComponent<SubMenu>(0);
+            builder.AddAttribute(1, "Key", item.Key);
+            builder.AddAttribute(2, "TitleTemplate", (RenderFragment)(t =>
+        {
+        if (!string.IsNullOrEmpty(item.Icon))
+        {
+            t.OpenElement(0, "span");
+            t.AddAttribute(1, "class", "anticon");
+            t.AddContent(1, (RenderFragment)(i =>
+        {
+        i.OpenComponent<Icon>(0);
+        i.AddAttribute(1, "Type", item.Icon);
+        i.CloseComponent();
+    }));
+            t.CloseElement();
+        }
+        t.OpenElement(0, "span");
+        t.AddAttribute(1, "class", "ant-menu-title-content");
+        t.AddAttribute(2, "OnClick", "margin-left: 8px;");
+        t.AddContent(2, item.Label);
+        t.CloseElement();
+    }));
+            builder.AddAttribute(3, "ChildContent", (RenderFragment)(b =>
+        {
+        foreach (var child in item.Children)
+        {
+            b.AddContent(4, RenderMenuItem(child));
+        }
+    }));
+            builder.CloseComponent();
+        }
+        else
+        {
+            builder.OpenComponent<AntDesign.MenuItem>(0);
+            builder.AddAttribute(1, "Key", item.Key);
+            builder.AddAttribute(2, "Icon", item.Icon);
+            builder.AddAttribute(3, "ChildContent", (RenderFragment)(b =>
+        {
+        b.AddContent(0, item.Label);
+    }));
+            builder.CloseComponent();
+        }
+    };
+
+    private async Task OnSubmenuClicked(CollectionModel item)
+    {
+        NavigationManager.NavigateTo($"/{item.Key}", false);
+    }
+
+    private async Task OnMenuItemClicked(MenuItem item)
+    {
+        NavigationManager.NavigateTo($"/{item.Key}", false);
+    }
+}

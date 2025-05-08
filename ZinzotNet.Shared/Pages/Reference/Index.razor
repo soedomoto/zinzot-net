@@ -5,7 +5,7 @@
 @using ZinzotNet.Models
 @using ZinzotNet.Services
 
-@page "/reference"
+@page "/{Collection}"
 
 <div>
     <PageContainer Title="Reference">
@@ -23,7 +23,7 @@
                     @* <Selection /> *@
                     <PropertyColumn Property="c => c.ItemID" Sortable Filterable
                         DefaultSortOrder="@(State._query.SortModel.FirstOrDefault(x => x.FieldName == "ItemID")?.SortDirection)">
-                        <a href="reference/@row.ItemID">@row.ItemID</a>
+                        <a href="@Collection/@row.ItemID">@row.ItemID</a>
                     </PropertyColumn>
                     <PropertyColumn Property="c => c.Title" Sortable Filterable
                         DefaultSortOrder="@(State._query.SortModel.FirstOrDefault(x => x.FieldName == "Title")?.SortDirection)">
@@ -43,9 +43,11 @@
 @code {
     [Inject] public TableReferenceState State { get; set; }
     [Inject] public DetailReferenceState DetailState { get; set; }
+    [Inject] public CollectionService CollectionService { get; set; }
+    [Parameter] public string? Collection { get; set; }
     private ITable _table;
 
-    async Task OnInitializedasync()
+    protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         await State._OnTableChange();
@@ -53,5 +55,12 @@
         {
             Attachments = [],
         };
+
+        CollectionService.SelectedCollection = Collection;
+    }
+
+    protected override void OnParametersSet()
+    {
+        CollectionService.SelectedCollection = Collection;
     }
 }

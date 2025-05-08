@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using ZinzotNet.Shared.Services;
 using ZinzotNet.Services;
-using Syncfusion.Blazor;
 
 namespace ZinzotNet;
 
@@ -9,8 +8,6 @@ public static class MauiProgram
 {
 	public static MauiApp CreateMauiApp()
 	{
-		Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Mzg0NzcwOUAzMjM5MmUzMDJlMzAzYjMyMzkzYkQvTFpOU21iWHZHNWNoU2pKcTZaZFdPMjE2U29raDZnOEZkTTdQbEhhYVk9");
-
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
@@ -20,15 +17,9 @@ public static class MauiProgram
 			});
 
 		builder.Services.AddMauiBlazorWebView();
-		builder.Services.AddSyncfusionBlazor();
-		builder.Services.AddAntDesign();
-
 		builder.Services.AddSingleton<IFormFactor, FormFactor>();
-		builder.Services.AddScoped<ISupabaseService, SupabaseService>();
-		builder.Services.AddSingleton<IS3Service, S3Service>();
-		builder.Services.AddScoped<TableReferenceState>();
-		builder.Services.AddScoped<DetailReferenceState>();
-		builder.Services.AddSingleton<SampleService>();
+
+        Services.ServiceCollection.Register(builder.Services);
 
 #if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();
