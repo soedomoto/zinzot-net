@@ -8,7 +8,7 @@ namespace ZinzotNet.Services {
 
             services.AddSyncfusionBlazor();
             services.AddAntDesign();
-            services.AddScoped<ISupabaseService, SupabaseService>();
+            services.AddSingleton<ISupabaseService, SupabaseService>();
             services.AddSingleton<IS3Service, S3Service>();
             services.AddScoped<CollectionService>();
             services.AddScoped<TableReferenceState>();
