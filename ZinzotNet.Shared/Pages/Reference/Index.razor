@@ -1,4 +1,6 @@
-﻿@using AntDesign
+﻿@inherits AntComponentBase
+
+@using AntDesign
 @using AntDesign.ProLayout
 @using AntDesign.TableModels
 @using System.ComponentModel.DataAnnotations
@@ -20,7 +22,6 @@
                 Total="State._total" Loading="State._loading" PageIndex="State._query.PageIndex"
                 PageSize="State._query.PageSize" OnChange="State.OnTableChange">
                 <ColumnDefinitions Context="row">
-                    @* <Selection /> *@
                     <PropertyColumn Property="c => c.ItemID" Sortable Filterable
                         DefaultSortOrder="@(State._query.SortModel.FirstOrDefault(x => x.FieldName == "ItemID")?.SortDirection)">
                         <a href="@Collection/@row.ItemID">@row.ItemID</a>
@@ -29,11 +30,6 @@
                         DefaultSortOrder="@(State._query.SortModel.FirstOrDefault(x => x.FieldName == "Title")?.SortDirection)">
                         @row.Title
                     </PropertyColumn>
-                    @* <GenerateColumns Definitions="@((n, c) => { c.Filterable = true; c.Sortable = true; })" /> *@
-                    @* <ActionColumn Title="Action">
-                        <a @onclick="() => StartEdit(row)">Edit</a>
-                        <a @onclick="() => Delete(row)">Delete</a>
-                    </ActionColumn> *@
                 </ColumnDefinitions>
             </Table>
         </ChildContent>
@@ -41,32 +37,18 @@
 </div>
 
 @code {
-    [Inject] public TableReferenceState State { get; set; }
-    [Inject] public DetailReferenceState DetailState { get; set; }
-    [Inject] public CollectionService CollectionService { get; set; }
-    [Parameter] public string? Collection { get; set; }
-    private ITable _table;
+    [Parameter] public string Collection { get; set; } = string.Empty;
+    [Inject] public TableReferenceState? State { get; set; }
+    [Inject] public DetailReferenceState? DetailState { get; set; }
+    [Inject] public CollectionService? CollectionService { get; set; }
+    private ITable? _table;
 
-    protected override async Task OnInitializedAsync()
+    @* protected override void OnParametersSet()
     {
-        await base.OnInitializedAsync();
-        await State._OnTableChange();
-        DetailState._dataSource = new()
-        {
-            Attachments = [],
-        };
-
+        base.OnParametersSet();
         if (CollectionService != null)
         {
             CollectionService.SelectedCollection = Collection;
         }
-    }
-
-    protected override void OnParametersSet()
-    {
-        if (CollectionService != null)
-        {
-            CollectionService.SelectedCollection = Collection;
-        }
-    }
+    } *@
 }

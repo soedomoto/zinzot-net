@@ -1,4 +1,6 @@
-﻿@using AntDesign
+﻿@inherits AntComponentBase
+
+@using AntDesign
 @using AntDesign.ProLayout
 @using AntDesign.TableModels
 @using System.ComponentModel.DataAnnotations
@@ -7,8 +9,6 @@
 @using ZinzotNet.Models
 @using ZinzotNet.Pages.Reference.Detail
 @using ZinzotNet.Services
-
-@inject NavigationManager NavigationManager
 
 @page "/{Collection}/{*Id}"
 
@@ -134,31 +134,28 @@
 </div>
 
 @code {
-    [Inject] public TableReferenceState TableState { get; set; }
-    [Inject] public DetailReferenceState DetailState { get; set; }
-    [Inject] public CollectionService CollectionService { get; set; }
-    [Parameter] public string? Id { get; set; }
-    [Parameter] public string? Collection { get; set; }
-    private ITable _table;
+    [Parameter] public string Collection { get; set; } = string.Empty;
+    [Parameter] public string Id { get; set; } = string.Empty;
+    [Inject] NavigationManager NavigationManager { get; set; } = default!;
+    [Inject] public TableReferenceState? TableState { get; set; }
+    [Inject] public DetailReferenceState? DetailState { get; set; }
+    [Inject] public CollectionService? CollectionService { get; set; }
+    private ITable? _table;
 
-    protected override async Task OnInitializedAsync()
+    @* protected override async Task OnParametersSetAsync()
     {
-        await base.OnInitializedAsync();
-        await DetailState.OnParamChange(Id);
+        base.OnParametersSet();
 
         if (CollectionService != null)
         {
             CollectionService.SelectedCollection = Collection;
         }
-    }
 
-    protected override void OnParametersSet()
-    {
-        if (CollectionService != null)
+        if (DetailState != null)
         {
-            CollectionService.SelectedCollection = Collection;
+            await DetailState.OnParamChange(Id);
         }
-    }
+    } *@
 
     public async Task OnChange(QueryModel<TableReferenceModel> query)
     {
