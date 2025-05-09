@@ -56,11 +56,17 @@
             Attachments = [],
         };
 
-        CollectionService.SelectedCollection = Collection;
+        if (CollectionService != null)
+        {
+            CollectionService.SelectedCollection = Collection;
+        }
     }
 
     protected override void OnParametersSet()
     {
-        CollectionService.SelectedCollection = Collection;
+        if (CollectionService != null)
+        {
+            CollectionService.SelectedCollection = Collection;
+        }
     }
 }

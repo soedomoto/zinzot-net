@@ -146,12 +146,18 @@
         await base.OnInitializedAsync();
         await DetailState.OnParamChange(Id);
 
-        CollectionService.SelectedCollection = Collection;
+        if (CollectionService != null)
+        {
+            CollectionService.SelectedCollection = Collection;
+        }
     }
 
     protected override void OnParametersSet()
     {
-        CollectionService.SelectedCollection = Collection;
+        if (CollectionService != null)
+        {
+            CollectionService.SelectedCollection = Collection;
+        }
     }
 
     public async Task OnChange(QueryModel<TableReferenceModel> query)
