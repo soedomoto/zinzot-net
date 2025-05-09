@@ -7,13 +7,13 @@ namespace ZinzotNet.Models
     public class CollectionModel : BaseModel
     {
         [PrimaryKey("id")]
-        public string Key { get; set; }
+        public string? Key { get; set; }
         [Column("label")]
-        public string Label { get; set; }
+        public string? Label { get; set; }
         [Column("icon")]
-        public string Icon { get; set; }
+        public string? Icon { get; set; }
         [Column("parent_id")]
-        public string ParentId { get; set; }
+        public string? ParentId { get; set; }
         [Reference(typeof(CollectionModel), true, false)]
         public List<CollectionModel> Children { get; set; } = [];
     }
@@ -56,7 +56,7 @@ namespace ZinzotNet.Models
         [Column("series")]
         public string? Series { get; set; }
         [Column("title")]
-        public string? Title { get; set; }
+        public new string? Title { get; set; }
         [Column("url")]
         public string? Url { get; set; }
         [Column("attachments")]

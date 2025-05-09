@@ -21,16 +21,20 @@ namespace ZinzotNet.Services
                 if (_selectedCollection != value)
                 {
                     _selectedCollection = value;
-                    
+
                     SelectedCollectionPaths = [];
-                    BuildSelectedCollectionPaths(_selectedCollection);
+                    if (_selectedCollection != null)
+                    {
+                        BuildSelectedCollectionPaths(_selectedCollection);
+                    }
 
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedCollection)));
                 }
             }
         }
 
-        private void BuildSelectedCollectionPaths(string col) {
+        private void BuildSelectedCollectionPaths(string col)
+        {
             SelectedCollectionPaths = SelectedCollectionPaths.Prepend(col).ToList();
             var collection = AllCollections.FirstOrDefault(c => c.Key == col);
             if (collection != null && collection.ParentId != null)
@@ -52,7 +56,7 @@ namespace ZinzotNet.Services
             NestedCollections = BuildHierarchy(AllCollections);
         }
 
-        private List<CollectionModel> BuildHierarchy(List<CollectionModel> collections, string parentId = null)
+        private List<CollectionModel> BuildHierarchy(List<CollectionModel> collections, string? parentId = null)
         {
             // Find collections where parent_id matches the given parentId (or null for root)
             var result = collections

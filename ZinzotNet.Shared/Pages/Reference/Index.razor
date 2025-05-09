@@ -18,20 +18,23 @@
             </Breadcrumb>
         </Breadcrumb>
         <ChildContent>
-            <Table TItem="TableReferenceModel" @ref="_table" RemoteDataSource DataSource="State._dataSource"
-                Total="State._total" Loading="State._loading" PageIndex="State._query.PageIndex"
-                PageSize="State._query.PageSize" OnChange="State.OnTableChange">
-                <ColumnDefinitions Context="row">
-                    <PropertyColumn Property="c => c.ItemID" Sortable Filterable
-                        DefaultSortOrder="@(State._query.SortModel.FirstOrDefault(x => x.FieldName == "ItemID")?.SortDirection)">
-                        <a href="@Collection/@row.ItemID">@row.ItemID</a>
-                    </PropertyColumn>
-                    <PropertyColumn Property="c => c.Title" Sortable Filterable
-                        DefaultSortOrder="@(State._query.SortModel.FirstOrDefault(x => x.FieldName == "Title")?.SortDirection)">
-                        @row.Title
-                    </PropertyColumn>
-                </ColumnDefinitions>
-            </Table>
+            @if (State != null)
+            {
+                <Table TItem="TableReferenceModel" @ref="_table" RemoteDataSource DataSource="State._dataSource"
+                    Total="State._total" Loading="State._loading" PageIndex="State._query.PageIndex"
+                    PageSize="State._query.PageSize" OnChange="State.OnTableChange">
+                    <ColumnDefinitions Context="row">
+                        <PropertyColumn Property="c => c.ItemID" Sortable Filterable
+                            DefaultSortOrder="@(State._query.SortModel.FirstOrDefault(x => x.FieldName == "ItemID")?.SortDirection)">
+                            <a href="@Collection/@row.ItemID">@row.ItemID</a>
+                        </PropertyColumn>
+                        <PropertyColumn Property="c => c.Title" Sortable Filterable
+                            DefaultSortOrder="@(State._query.SortModel.FirstOrDefault(x => x.FieldName == "Title")?.SortDirection)">
+                            @row.Title
+                        </PropertyColumn>
+                    </ColumnDefinitions>
+                </Table>
+            }
         </ChildContent>
     </PageContainer>
 </div>

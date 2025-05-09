@@ -68,7 +68,7 @@ namespace ZinzotNet.Services
 
     public class DetailReferenceState(ISupabaseService SupabaseService, IS3Service S3Service)
     {
-        private string _id;
+        private string _id = string.Empty;
         public bool _loading;
         public ReferenceModel _dataSource = new();
 

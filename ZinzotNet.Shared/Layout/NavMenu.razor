@@ -12,33 +12,39 @@
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <Menu 
-        Mode="MenuMode.Inline" 
-        OpenKeys="CollectionService?.SelectedCollectionPaths.ToArray()"
-        SelectedKeys="CollectionService?.SelectedCollectionPaths.ToArray()"
-        Style="height: 100%; border-right: 0;"
-        OnMenuItemClicked="OnMenuItemClicked"
-    >
-        @foreach (var col in CollectionService?.NestedCollections) {
+    <Menu Mode="MenuMode.Inline" OpenKeys="CollectionService?.SelectedCollectionPaths.ToArray()"
+        SelectedKeys="CollectionService?.SelectedCollectionPaths.ToArray()" Style="height: 100%; border-right: 0;"
+        OnMenuItemClicked="OnMenuItemClicked">
+        @foreach (var col in CollectionService?.NestedCollections ?? [])
+        {
             @RenderMenuItem(col)
         }
     </Menu>
 </div>
 
 @code {
-    [Inject] CollectionService CollectionService { get; set; }
-    [Inject] NavigationManager NavigationManager { get; set; }
+    [Inject] CollectionService? CollectionService { get; set; }
+    [Inject] NavigationManager? NavigationManager { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        await CollectionService?.RefetchCollections();
-        CollectionService.PropertyChanged += (obj, ev) => {
-            StateHasChanged();
-        };
+        if (CollectionService != null)
+        {
+            await CollectionService.RefetchCollections();
+            CollectionService.PropertyChanged += (obj, ev) =>
+            {
+                StateHasChanged();
+            };
+        }
+
+
     }
 
     public void Dispose()
     {
-        CollectionService.PropertyChanged -= (_, _) => StateHasChanged();
+        if (CollectionService != null)
+        {
+            CollectionService.PropertyChanged -= (_, _) => StateHasChanged();
+        }
     }
 
     private RenderFragment RenderMenuItem(CollectionModel item) => builder =>
@@ -89,13 +95,19 @@
         }
     };
 
-    private async Task OnSubmenuClicked(CollectionModel item)
+    private void OnSubmenuClicked(CollectionModel item)
     {
-        NavigationManager.NavigateTo($"/{item.Key}", false);
+        if (NavigationManager != null)
+        {
+            NavigationManager.NavigateTo($"/{item.Key}", false);
+        }
     }
 
-    private async Task OnMenuItemClicked(MenuItem item)
+    private void OnMenuItemClicked(MenuItem item)
     {
-        NavigationManager.NavigateTo($"/{item.Key}", false);
+        if (NavigationManager != null)
+        {
+            NavigationManager.NavigateTo($"/{item.Key}", false);
+        }
     }
 }
