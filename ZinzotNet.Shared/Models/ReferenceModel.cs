@@ -15,7 +15,7 @@ namespace ZinzotNet.Models
         [Column("parent_id")]
         public string ParentId { get; set; }
         [Reference(typeof(CollectionModel), true, false)]
-        public List<CollectionModel> Children { get; set; } = new List<CollectionModel>();
+        public List<CollectionModel> Children { get; set; } = [];
     }
 
     [Table("items")]

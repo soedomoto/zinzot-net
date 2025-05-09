@@ -74,6 +74,8 @@ namespace ZinzotNet.Services
 
         public async Task OnParamChange(string id)
         {
+            _dataSource ??= new ReferenceModel();
+
             _id = id;
             await _OnParamChange();
         }
