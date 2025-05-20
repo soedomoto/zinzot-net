@@ -1,0 +1,57 @@
+@using Radzen
+@using Radzen.Blazor
+@using ZinzotNet.Models
+@using ZinzotNet.Services
+
+<RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false"
+    FilterMode="FilterMode.Advanced" AllowSorting="true" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left"
+    ShowPagingSummary="true" LogicalFilterOperator="LogicalFilterOperator.Or"
+    SelectionMode="DataGridSelectionMode.Single" LoadData="@TableReferenceState.LoadData"
+    IsLoading="@TableReferenceState.Loading" Count="@TableReferenceState.Total"
+    Data="@TableReferenceState.DataSource.AsODataEnumerable()" @bind-Settings="@TableReferenceState.Settings">
+    <Columns>
+        <RadzenDataGridColumn Width="250px" Filterable="false" Title="ID" Frozen="true" TextAlign="TextAlign.Center">
+            <Template Context="data">
+                <RadzenLink Path="@("library/" + (Collection ?? "-") + "/" + data.ItemID)">@data.ItemID</RadzenLink>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Title="Title" Property="@nameof(TableReferenceModel.Title)" Frozen="true" Sortable="false"
+            Filterable="false" TextAlign="TextAlign.Left" />
+        @* <RadzenDataGridColumn Property="@nameof(Employee.FirstName)" Title="First Name" Frozen="true" Width="160px" />
+        <RadzenDataGridColumn Property="@nameof(Employee.LastName)" Title="Last Name" Width="160px"/>
+        <RadzenDataGridColumn Property="@nameof(Employee.Title)" Title="Job Title" Width="200px" />
+        <RadzenDataGridColumn Property="@nameof(Employee.TitleOfCourtesy)" Title="Title" Width="120px" />
+        <RadzenDataGridColumn Property="@nameof(Employee.BirthDate)" Title="Birth Date" FormatString="{0:d}" Width="160px" />
+        <RadzenDataGridColumn Property="@nameof(Employee.HireDate)" Title="Hire Date" FormatString="{0:d}" Width="160px" />
+        <RadzenDataGridColumn Property="@nameof(Employee.Address)" Title="Address" Width="200px" />
+        <RadzenDataGridColumn Property="@nameof(TableReferenceModel.City)" Title="City" Width="160px" />
+        <RadzenDataGridColumn Property="@nameof(Employee.Region)" Title="Region" Width="160px" />
+        <RadzenDataGridColumn Property="@nameof(Employee.PostalCode)" Title="Postal Code" Width="160px" />
+        <RadzenDataGridColumn Property="@nameof(Employee.Country)" Title="Country" Width="160px" />
+        <RadzenDataGridColumn Property="@nameof(Employee.HomePhone)" Title="Home Phone" Width="160px" />
+        <RadzenDataGridColumn Property="@nameof(Employee.Extension)" Title="Extension" Width="160px" />
+        <RadzenDataGridColumn Property="@nameof(Employee.Notes)" Title="Notes" Width="300px" /> *@
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    [Parameter] public string? Collection { get; set; } = string.Empty;
+    [Inject] public TableReferenceState TableReferenceState { get; set; } = default!;
+
+    IQueryable<TableReferenceModel> employees = Enumerable.Empty<TableReferenceModel>().AsQueryable();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await TableReferenceState.OnTableChange();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (string.IsNullOrEmpty(Collection)) Collection = null;
+        if (Collection == "-") Collection = null;
+
+        TableReferenceState.Collection = Collection;
+        await TableReferenceState.OnTableChange();
+    }
+}

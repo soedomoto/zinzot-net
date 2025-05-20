@@ -1,57 +1,10 @@
-﻿@inherits AntComponentBase
+@using ZinzotNet.Shared.Pages.Reference.Components
 
-@using AntDesign
-@using AntDesign.ProLayout
-@using AntDesign.TableModels
-@using System.ComponentModel.DataAnnotations
-@using ZinzotNet.Models
-@using ZinzotNet.Services
+@page "/library"
+@page "/library/{Collection}"
 
-@page "/{Collection}"
-
-<div>
-    <PageContainer Title="Reference">
-        <Breadcrumb>
-            <Breadcrumb>
-                <BreadcrumbItem>Home</BreadcrumbItem>
-                <BreadcrumbItem>Reference</BreadcrumbItem>
-            </Breadcrumb>
-        </Breadcrumb>
-        <ChildContent>
-            @if (State != null)
-            {
-                <Table TItem="TableReferenceModel" @ref="_table" RemoteDataSource DataSource="State._dataSource"
-                    Total="State._total" Loading="State._loading" PageIndex="State._query.PageIndex"
-                    PageSize="State._query.PageSize" OnChange="State.OnTableChange">
-                    <ColumnDefinitions Context="row">
-                        <PropertyColumn Property="c => c.ItemID" Sortable Filterable
-                            DefaultSortOrder="@(State._query.SortModel.FirstOrDefault(x => x.FieldName == "ItemID")?.SortDirection)">
-                            <a href="@Collection/@row.ItemID">@row.ItemID</a>
-                        </PropertyColumn>
-                        <PropertyColumn Property="c => c.Title" Sortable Filterable
-                            DefaultSortOrder="@(State._query.SortModel.FirstOrDefault(x => x.FieldName == "Title")?.SortDirection)">
-                            @row.Title
-                        </PropertyColumn>
-                    </ColumnDefinitions>
-                </Table>
-            }
-        </ChildContent>
-    </PageContainer>
-</div>
+<ListReference Collection="@Collection" />
 
 @code {
     [Parameter] public string Collection { get; set; } = string.Empty;
-    [Inject] public TableReferenceState? State { get; set; }
-    [Inject] public DetailReferenceState? DetailState { get; set; }
-    [Inject] public CollectionService? CollectionService { get; set; }
-    private ITable? _table;
-
-    @* protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-        if (CollectionService != null)
-        {
-            CollectionService.SelectedCollection = Collection;
-        }
-    } *@
 }

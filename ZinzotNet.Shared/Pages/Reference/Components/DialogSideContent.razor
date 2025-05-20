@@ -1,0 +1,19 @@
+@using Radzen
+@using Radzen.Blazor
+
+<div style="padding: 20px;">
+    <h3>Side Dialog</h3>
+    <RadzenTextBox @bind-Value="@Text" Placeholder="Enter text" Style="width: 100%; margin-bottom: 10px;" />
+    <div class="row">
+        <div class="col-md-12">
+            <RadzenButton Text="Confirm" Click="() => DialogService.Close(true)" Style="margin-right: 10px;" />
+            <RadzenButton Text="Cancel" Click="() => DialogService.Close(false)" ButtonStyle="ButtonStyle.Secondary" />
+        </div>
+    </div>
+</div>
+
+@code {
+    [Inject]
+    public DialogService DialogService { get; set; }
+    public string Text { get; set; } = string.Empty;
+}

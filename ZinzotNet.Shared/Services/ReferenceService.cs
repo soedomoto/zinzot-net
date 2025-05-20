@@ -1,5 +1,7 @@
 using System.Reflection;
-using AntDesign.TableModels;
+using System.Text.Json;
+using Supabase.Postgrest.Interfaces;
+using Radzen;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 using ZinzotNet.Models;
@@ -7,55 +9,86 @@ using ZinzotNet.Models;
 namespace ZinzotNet.Services
 {
 
-    public class TableReferenceState(ISupabaseService SupabaseService)
+    public class TableReferenceState(ISupabaseService SupabaseService, CollectionService CollectionService)
     {
-        public QueryModel<TableReferenceModel> _query = new(1, 10, 0, [], []);
+        public DataGridSettings Settings = new() { CurrentPage = 0, PageSize = 10 };
+        public string? Collection = null;
 
-        public bool _loading = false;
-        public int _total = 0;
-        public List<TableReferenceModel> _dataSource = [];
+        public bool Loading = false;
+        public int Total = 0;
+        public List<TableReferenceModel> DataSource = [];
 
-        public async Task OnTableChange(QueryModel<TableReferenceModel> query)
+        public async Task LoadData(LoadDataArgs _args)
         {
-            _query = query;
-            await _OnTableChange();
+            await OnTableChange();
         }
 
-        public async Task _OnTableChange()
+        private HashSet<string> GetCollectionRecursive(string? parentId, HashSet<string> collections)
+        {
+            collections ??= [];
+
+            foreach (var collection in CollectionService.AllCollections.FindAll(c => c.ParentId == parentId))
+            {
+                collections.Add(collection.Key!);
+                foreach (var c in GetCollectionRecursive(collection.Key, collections))
+                {
+                    collections.Add(c);
+                }
+                // collections(GetCollectionRecursive(collection.Key, collections));
+            }
+
+            return collections;
+        }
+
+        public async Task OnTableChange()
         {
             try
             {
-                _loading = true;
+                Loading = true;
 
-                var cresponse = await SupabaseService.Client
+                IPostgrestTable<TableReferenceModel> cQuery = SupabaseService.Client
+                    .From<TableReferenceModel>();
+
+                var rQueryCols = string.Join(",", SupabaseModelExtensions.GetColumnNames(typeof(TableReferenceModel)));
+                IPostgrestTable<TableReferenceModel> rQuery = SupabaseService.Client
                     .From<TableReferenceModel>()
-                    .Count(Supabase.Postgrest.Constants.CountType.Exact);
+                    .Select(rQueryCols)
+                    .Range((Settings.CurrentPage ?? 0) * (Settings.PageSize ?? 10), ((Settings.CurrentPage ?? 0) + 1) * (Settings.PageSize ?? 10) - 1);
 
-                var query = SupabaseService.Client
-                    .From<TableReferenceModel>()
-                    .Select(string.Join(",", SupabaseModelExtensions.GetColumnNames(typeof(TableReferenceModel))))
-                    .Range((_query.PageIndex - 1) * _query.PageSize, _query.PageIndex * _query.PageSize - 1);
-
-                foreach (var sort in _query.SortModel)
+                if (Collection != null)
                 {
-                    var colName = SupabaseModelExtensions.GetColumnName<TableReferenceModel>(sort.FieldName);
-                    if (sort.SortDirection != AntDesign.SortDirection.None)
+                    var collections = GetCollectionRecursive(Collection, [Collection]);
+
+                    cQuery = cQuery.Filter("collection_id", Supabase.Postgrest.Constants.Operator.In, collections.ToArray());
+                    rQuery = rQuery.Filter("collection_id", Supabase.Postgrest.Constants.Operator.In, collections.ToArray());
+                }
+
+                foreach (var sort in Settings.Columns ?? [])
+                {
+                    var colName = SupabaseModelExtensions.GetColumnName<TableReferenceModel>(sort.Property);
+                    if (sort.SortOrder != null)
                     {
                         var ordering = Supabase.Postgrest.Constants.Ordering.Ascending;
-                        if (sort.SortDirection == AntDesign.SortDirection.Descending)
+                        if (sort.SortOrder == SortOrder.Descending)
                         {
                             ordering = Supabase.Postgrest.Constants.Ordering.Descending;
                         }
 
-                        query = query.Order(colName, ordering);
+                        rQuery = rQuery.Order(colName, ordering);
                     }
                 }
 
-                var response = await query.Get();
+                var count = await cQuery.Count(Supabase.Postgrest.Constants.CountType.Exact);
+                var response = await rQuery.Get();
 
-                _loading = false;
-                _total = cresponse;
-                _dataSource = response?.Models ?? [];
+                Loading = false;
+                Total = count;
+                DataSource = response?.Models ?? [];
+
+                foreach (var d in DataSource)
+                {
+                    // Console.WriteLine(d.CollectionItems);
+                }
             }
             catch (Exception ex)
             {
@@ -69,12 +102,12 @@ namespace ZinzotNet.Services
     public class DetailReferenceState(ISupabaseService SupabaseService, IS3Service S3Service)
     {
         private string _id = string.Empty;
-        public bool _loading;
-        public ReferenceModel _dataSource = new();
+        public bool Loading;
+        public ReferenceModel DataSource = new();
 
         public async Task OnParamChange(string id)
         {
-            _dataSource ??= new ReferenceModel();
+            DataSource ??= new ReferenceModel();
 
             _id = id;
             await _OnParamChange();
@@ -84,7 +117,7 @@ namespace ZinzotNet.Services
         {
             try
             {
-                _loading = true;
+                Loading = true;
 
                 var ItemCreatorCols = SupabaseModelExtensions.GetColumnNames(typeof(ItemCreator));
                 var itemCreatorsSel = "item_creators(" + string.Join(",", ItemCreatorCols) + ")";
@@ -104,8 +137,8 @@ namespace ZinzotNet.Services
                     reference.Attachments[i] = await S3Service.GetPresignedUrl(reference.Attachments[i]);
                 }
 
-                _loading = false;
-                _dataSource = reference ?? new ReferenceModel();
+                Loading = false;
+                DataSource = reference ?? new ReferenceModel();
 
                 await Task.WhenAll();
             }

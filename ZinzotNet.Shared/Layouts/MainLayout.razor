@@ -1,0 +1,88 @@
+@using Radzen
+@using Radzen.Blazor
+@using ZinzotNet.Services
+@using ZinzotNet.Models
+
+@inherits LayoutComponentBase
+
+<RadzenComponents @rendermode="InteractiveServer" />
+<RadzenDialog @rendermode="InteractiveServer" />
+
+<RadzenLayout Style="grid-template-areas: 'rz-sidebar rz-header' 'rz-sidebar rz-body'">
+    <RadzenHeader>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
+            <RadzenSidebarToggle Click="@(() => sidebarExpanded = !sidebarExpanded)" />
+        </RadzenStack>
+    </RadzenHeader>
+    <RadzenSidebar @bind-Expanded="@sidebarExpanded">
+        <RadzenPanelMenu Click="OnParentClicked" Style="width:300px" Multiple="false">
+            <RadzenPanelMenuItem Text="Home" Icon="home" />
+            <RadzenPanelMenuItem Text="My Library" Icon="grid_view"
+                Click='(MenuItemEventArgs evt) => NavigationManager.NavigateTo("/library")'>
+                @foreach (var col in CollectionService?.NestedCollections ?? [])
+                {
+                    @RenderMenuItem(col)
+                }
+            </RadzenPanelMenuItem>
+        </RadzenPanelMenu>
+    </RadzenSidebar>
+    <RadzenBody>
+        <div class="rz-p-4">
+            @Body
+        </div>
+    </RadzenBody>
+</RadzenLayout>
+
+@code {
+    [Inject] public NavigationManager NavigationManager { get; set; } = default!;
+    [Inject] public CollectionService CollectionService { get; set; } = default!;
+
+    bool sidebarExpanded = true;
+    protected override async Task OnInitializedAsync()
+    {
+        await CollectionService.RefetchCollections();
+    }
+
+    private RenderFragment RenderChildren(List<CollectionModel> children)
+    {
+        return (b) =>
+        {
+            foreach (var child in children)
+            {
+                b.AddContent(5, RenderMenuItem(child));
+            }
+        };
+    }
+
+    private Action<MenuItemEventArgs> OnMenuItemClick(CollectionModel item)
+    {
+        return (evt) =>
+        {
+            NavigationManager.NavigateTo("library/" + item.Key);
+        };
+    }
+
+    private RenderFragment RenderMenuItem(CollectionModel item)
+    {
+        return (builder) =>
+        {
+
+            builder.OpenComponent<RadzenPanelMenuItem>(0);
+            builder.AddAttribute(1, "Key", item.Key);
+            builder.AddAttribute(2, "Text", item.Label);
+            builder.AddAttribute(3, "Click", EventCallback.Factory.Create(this, OnMenuItemClick(item)));
+
+            if (item.Children.Any())
+            {
+                builder.AddAttribute(4, "ChildContent", RenderChildren(item.Children));
+            }
+
+            builder.CloseComponent();
+        };
+    }
+
+    void OnParentClicked(MenuItemEventArgs args)
+    {
+        @* console.Log($"{args.Text} clicked from parent"); *@
+    }
+}

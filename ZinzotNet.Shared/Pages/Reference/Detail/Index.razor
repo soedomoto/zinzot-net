@@ -1,184 +1,131 @@
-﻿@inherits AntComponentBase
-
-@using AntDesign
-@using AntDesign.ProLayout
-@using AntDesign.TableModels
-@using System.ComponentModel.DataAnnotations
-@using static OneOf.Types.TrueFalseOrNull
-@using System.Text.Json
-@using ZinzotNet.Models
-@using ZinzotNet.Pages.Reference.Detail
+@using Radzen
+@using Radzen.Blazor
 @using ZinzotNet.Services
+@using ZinzotNet.Shared.Pages.Reference.Components
 
-@page "/{Collection}/{*Id}"
+@page "/library/{Collection}/{*Id}"
 
-<div>
-    <PageContainer Title="Reference">
-        <Breadcrumb>
-            <Breadcrumb>
-                <BreadcrumbItem>Home</BreadcrumbItem>
-                <BreadcrumbItem>Reference</BreadcrumbItem>
-            </Breadcrumb>
-        </Breadcrumb>
-        <ChildContent>
-            @if (TableState != null)
-            {
-                <Table TItem="TableReferenceModel" @ref="_table" RemoteDataSource DataSource="TableState._dataSource"
-                    Total="TableState._total" Loading="TableState._loading" PageIndex="TableState._query.PageIndex"
-                    PageSize="TableState._query.PageSize" OnChange="OnChange">
-                    <ColumnDefinitions Context="row">
-                        @* <Selection /> *@
-                        <PropertyColumn Property="c => c.ItemID" Sortable Filterable
-                            DefaultSortOrder="@(TableState._query.SortModel.FirstOrDefault(x => x.FieldName == "ItemID")?.SortDirection)">
-                            <a href="reference/@row.ItemID">@row.ItemID</a>
-                        </PropertyColumn>
-                        <PropertyColumn Property="c => c.Title" Sortable Filterable
-                            DefaultSortOrder="@(TableState._query.SortModel.FirstOrDefault(x => x.FieldName == "Title")?.SortDirection)">
-                            @row.Title
-                        </PropertyColumn>
-                        @* <GenerateColumns Definitions="@((n, c) => { c.Filterable = true; c.Sortable = true; })" /> *@
-                        @* <ActionColumn Title="Action">
-                        <a @onclick="() => StartEdit(row)">Edit</a>
-                        <a @onclick="() => Delete(row)">Delete</a>
-                    </ActionColumn> *@
-                    </ColumnDefinitions>
-                </Table>
-            }
-            @if (DetailState != null)
-            {
-                <Drawer Visible="Id != null" Placement="DrawerPlacement.Right" Width="500"
-                    OnClose="@(() => NavigationManager.NavigateTo($"/{Collection}"))">
-                    <Form Model="@DetailState._dataSource" Layout="FormLayout.Vertical" Loading="@DetailState._loading">
-                        <FormItem Label="Item Type">
-                            <Input @bind-Value="@context.ItemType" />
-                        </FormItem>
-                        <FormItem Label="Title">
-                            <Input @bind-Value="@context.Title" />
-                        </FormItem>
-                        @foreach (var item in @context.ItemCreators)
-                        {
-                            @if (item == null)
-                            {
-                                continue;
-                            }
+@* <ListReference Collection="@Collection" /> *@
 
-                            <FormItem Label="@item.CreatorType?.CapitalizeFirstLetter()">
-                                <InputGroup Compact>
-                                    <Input @bind-Value="@item.Creator.FirstName" />
-                                    <Input @bind-Value="@item.Creator.LastName" />
-                                </InputGroup>
-                            </FormItem>
-                        }
-                        <FormItem Label="Publication Title">
-                            <Input @bind-Value="@context.PublicationTitle" />
-                        </FormItem>
-                        <FormItem Label="Volume">
-                            <Input @bind-Value="@context.Volume" />
-                        </FormItem>
-                        <FormItem Label="Issue">
-                            <Input @bind-Value="@context.Issue" />
-                        </FormItem>
-                        <FormItem Label="Pages">
-                            <Input @bind-Value="@context.Pages" />
-                        </FormItem>
-                        <FormItem Label="Date">
-                            <Input @bind-Value="@context.Date" />
-                        </FormItem>
-                        <FormItem Label="Series">
-                            <Input @bind-Value="@context.Series" />
-                        </FormItem>
-                        <FormItem Label="Journal Abbreviation">
-                            <Input @bind-Value="@context.JournalAbbreviation" />
-                        </FormItem>
-                        <FormItem Label="Language">
-                            <Input @bind-Value="@context.Language" />
-                        </FormItem>
-                        <FormItem Label="DOI">
-                            <Input @bind-Value="@context.DOI" />
-                        </FormItem>
-                        <FormItem Label="ISSN">
-                            <Input @bind-Value="@context.ISSN" />
-                        </FormItem>
-                        <FormItem Label="Short Title">
-                            <Input @bind-Value="@context.ShortTitle" />
-                        </FormItem>
-                        <FormItem Label="URL">
-                            <Input @bind-Value="@context.Url" />
-                        </FormItem>
-                        <FormItem Label="Access Date">
-                            <Input @bind-Value="@context.AccessDate" />
-                        </FormItem>
-                        <FormItem Label="Library Catalog">
-                            <Input @bind-Value="@context.LibraryCatalog" />
-                        </FormItem>
-                        <FormItem Label="Extra">
-                            <Input @bind-Value="@context.Extra" />
-                        </FormItem>
-                        @* <FormItem>
-                        <Button Type="primary" OnClick="@(() => Save())">Save</Button>
-                        <Button OnClick="@(() => NavigationManager.NavigateTo("/reference"))">Cancel</Button>
-                    </FormItem> *@
-                    </Form>
-                    <Form Model="@DetailState._dataSource" Layout="FormLayout.Vertical">
-                        <FormItem Label="Abstract">
-                            <TextArea AutoSize @bind-Value="@context.AbstractNote" />
-                        </FormItem>
-                    </Form>
-                    @* <Form Model="@DetailState._dataSource" Layout="FormLayout.Vertical">
-                    @foreach (var att in @context.Attachments)
-                    {
-                        var attachment = att;
-                        <FormItem Label="Attachment">
-                            <Input @bind-Value="@attachment" />
-                        </FormItem>
-                    }
-                </Form> *@
+<RadzenRow AlignItems="AlignItems.End" Wrap="FlexWrap.Wrap" Gap="1rem" class="rz-p-sm-12">
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+        <RadzenFormField Text="Item Type" Style="width: 100%">
+            <RadzenTextBox @bind-Value="@DetailReferenceState.DataSource.ItemType" />
+        </RadzenFormField>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+        <RadzenFormField Text="Title" Style="width: 100%">
+            <RadzenTextBox @bind-Value="@DetailReferenceState.DataSource.Title" />
+        </RadzenFormField>
+    </RadzenColumn>
 
-                    @foreach (var att in @DetailState._dataSource.Attachments ?? [])
-                    {
-                        @* <BlazorBootstrap.PdfViewer Url="@att" /> *@
-                    }
-                </Drawer>
-            }
-        </ChildContent>
-    </PageContainer>
-</div>
+    @foreach (var item in @DetailReferenceState.DataSource.ItemCreators)
+    {
+        @if (item == null)
+        {
+            continue;
+        }
+
+        <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+            <RadzenFormField Text="@item.CreatorType?.CapitalizeFirstLetter()" Style="width: 100%">
+                <RadzenTextBox @bind-Value="@item.Creator.FirstName" />
+                <RadzenTextBox @bind-Value="@item.Creator.LastName" />
+            </RadzenFormField>
+        </RadzenColumn>
+    }
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+        <RadzenFormField Text="Publication Title" Style="width: 100%">
+            <RadzenTextBox @bind-Value="@DetailReferenceState.DataSource.PublicationTitle" />
+        </RadzenFormField>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+        <RadzenFormField Text="Volume" Style="width: 100%">
+            <RadzenTextBox @bind-Value="@DetailReferenceState.DataSource.Volume" />
+        </RadzenFormField>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+        <RadzenFormField Text="Issue" Style="width: 100%">
+            <RadzenTextBox @bind-Value="@DetailReferenceState.DataSource.Issue" />
+        </RadzenFormField>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+        <RadzenFormField Text="Pages" Style="width: 100%">
+            <RadzenTextBox @bind-Value="@DetailReferenceState.DataSource.Pages" />
+        </RadzenFormField>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+        <RadzenFormField Text="Date" Style="width: 100%">
+            <RadzenTextBox @bind-Value="@DetailReferenceState.DataSource.Date" />
+        </RadzenFormField>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+        <RadzenFormField Text="Series" Style="width: 100%">
+            <RadzenTextBox @bind-Value="@DetailReferenceState.DataSource.Series" />
+        </RadzenFormField>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+        <RadzenFormField Text="Journal Abbreviation" Style="width: 100%">
+            <RadzenTextBox @bind-Value="@DetailReferenceState.DataSource.JournalAbbreviation" />
+        </RadzenFormField>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+        <RadzenFormField Text="Language" Style="width: 100%">
+            <RadzenTextBox @bind-Value="@DetailReferenceState.DataSource.Language" />
+        </RadzenFormField>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+        <RadzenFormField Text="DOI" Style="width: 100%">
+            <RadzenTextBox @bind-Value="@DetailReferenceState.DataSource.DOI" />
+        </RadzenFormField>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+        <RadzenFormField Text="ISSN" Style="width: 100%">
+            <RadzenTextBox @bind-Value="@DetailReferenceState.DataSource.ISSN" />
+        </RadzenFormField>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+        <RadzenFormField Text="Short Title" Style="width: 100%">
+            <RadzenTextBox @bind-Value="@DetailReferenceState.DataSource.ShortTitle" />
+        </RadzenFormField>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+        <RadzenFormField Text="URL" Style="width: 100%">
+            <RadzenTextBox @bind-Value="@DetailReferenceState.DataSource.Url" />
+        </RadzenFormField>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+        <RadzenFormField Text="Access Date" Style="width: 100%">
+            <RadzenTextBox @bind-Value="@DetailReferenceState.DataSource.AccessDate" />
+        </RadzenFormField>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+        <RadzenFormField Text="Library Catalog" Style="width: 100%">
+            <RadzenTextBox @bind-Value="@DetailReferenceState.DataSource.LibraryCatalog" />
+        </RadzenFormField>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+        <RadzenFormField Text="Extra" Style="width: 100%">
+            <RadzenTextBox @bind-Value="@DetailReferenceState.DataSource.Extra" />
+        </RadzenFormField>
+    </RadzenColumn>
+</RadzenRow>
 
 @code {
-    [Parameter] public string Collection { get; set; } = string.Empty;
-    [Parameter] public string Id { get; set; } = string.Empty;
-    [Inject] NavigationManager NavigationManager { get; set; } = default!;
-    [Inject] public TableReferenceState? TableState { get; set; }
-    [Inject] public DetailReferenceState? DetailState { get; set; }
-    [Inject] public CollectionService? CollectionService { get; set; }
-    private ITable? _table;
+    string value = "";
+
+    [Parameter] public string? Collection { get; set; } = string.Empty;
+    [Parameter] public string? Id { get; set; } = string.Empty;
+    [Inject] public TableReferenceState TableReferenceState { get; set; } = default!;
+    [Inject] public DetailReferenceState DetailReferenceState { get; set; } = default!;
+    [Inject] public DialogService DialogService { get; set; } = default!;
 
     protected override async Task OnParametersSetAsync()
     {
-        base.OnParametersSet();
+        if (string.IsNullOrEmpty(Collection)) Collection = null;
+        if (Collection == "-") Collection = null;
 
-        if (CollectionService != null)
-        {
-            CollectionService.SelectedCollection = Collection;
-        }
+        TableReferenceState.Collection = Collection;
 
-        if (DetailState != null)
-        {
-            await DetailState.OnParamChange(Id);
-        }
-    }
-
-    public async Task OnChange(QueryModel<TableReferenceModel> query)
-    {
-        if (TableState != null)
-        {
-            var equal = JsonSerializer.Serialize(TableState._query) == JsonSerializer.Serialize(query);
-            if (equal)
-            {
-                return;
-            }
-
-            await TableState.OnTableChange(query);
-        }
+        await DetailReferenceState.OnParamChange(Id);
     }
 }

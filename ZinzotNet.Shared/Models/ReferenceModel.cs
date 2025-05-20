@@ -3,32 +3,24 @@ using Supabase.Postgrest.Models;
 
 namespace ZinzotNet.Models
 {
-    [Table("collections")]
-    public class CollectionModel : BaseModel
-    {
-        [PrimaryKey("id")]
-        public string? Key { get; set; }
-        [Column("label")]
-        public string? Label { get; set; }
-        [Column("icon")]
-        public string? Icon { get; set; }
-        [Column("parent_id")]
-        public string? ParentId { get; set; }
-        [Reference(typeof(CollectionModel), true, false)]
-        public List<CollectionModel> Children { get; set; } = [];
-    }
-
-    [Table("items")]
+    [Table("v_items")]
     public class TableReferenceModel : BaseModel
     {
         [PrimaryKey("itemId")]
         public string? ItemID { get; set; }
         [Column("title")]
         public string? Title { get; set; }
+        [Column("collection_id")]
+        public string? CollectionID { get; set; }
     }
 
-    public class ReferenceModel : TableReferenceModel
+    [Table("items")]
+    public class ReferenceModel : BaseModel
     {
+        [PrimaryKey("itemId")]
+        public string? ItemID { get; set; }
+        [Column("title")]
+        public string? Title { get; set; }
         [Column("DOI")]
         public string? DOI { get; set; }
         [Column("ISBN")]
@@ -55,8 +47,6 @@ namespace ZinzotNet.Models
         public string? Publisher { get; set; }
         [Column("series")]
         public string? Series { get; set; }
-        [Column("title")]
-        public new string? Title { get; set; }
         [Column("url")]
         public string? Url { get; set; }
         [Column("attachments")]
@@ -79,6 +69,8 @@ namespace ZinzotNet.Models
         public string? Edition { get; set; }
         [Reference(typeof(ItemCreator), true, false)]
         public List<ItemCreator> ItemCreators { get; set; } = [];
+        [Reference(typeof(CollectionItem), true, false)]
+        public List<CollectionItem> CollectionItems { get; set; } = [];
     }
 
     [Table("item_creators")]
@@ -111,5 +103,35 @@ namespace ZinzotNet.Models
         public required string FirstName { get; set; }
         [Column("lastName")]
         public required string LastName { get; set; }
+    }
+
+    [Table("collections_items")]
+    public class CollectionItem : BaseModel
+    {
+        [Column("created_at")]
+        public string? CreatedAt { get; set; }
+        // [PrimaryKey("item_id")]
+        // // [Column("item_id")]
+        // public string? ItemID { get; set; }
+        // [PrimaryKey("collection_id")]
+        // // [Column("collection_id")]
+        // public string? CollectionID { get; set; }
+        [Reference(typeof(Collection), true, true)]
+         public List<Collection> Collections { get; set; } = [];
+    }
+    
+    [Table("collections")]
+    public class Collection : BaseModel
+    {
+        [PrimaryKey("id")]
+        public string? Id { get; set; }
+        [Column("created_at")]
+        public string? CreatedAt { get; set; }
+        [Column("label")]
+        public required string Label { get; set; }
+        [Column("icon")]
+        public required string Icon { get; set; }
+        [Reference(typeof(Collection), true, true)]
+        public Collection? Parent { get; set; }
     }
 }

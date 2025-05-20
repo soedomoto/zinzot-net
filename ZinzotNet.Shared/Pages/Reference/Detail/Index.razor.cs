@@ -1,4 +1,4 @@
-namespace ZinzotNet.Pages.Reference.Detail
+namespace ZinzotNet.Shared.Pages.Reference.Detail
 {
     public static class StringExtensions
     {

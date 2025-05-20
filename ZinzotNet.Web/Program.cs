@@ -1,6 +1,5 @@
+using Radzen;
 using ZinzotNet.Web.Components;
-using ZinzotNet.Shared.Services;
-using ZinzotNet.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,11 +9,7 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
     serverOptions.ListenAnyIP(Int32.Parse(port));
 });
 
-// Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-builder.Services.AddSingleton<IFormFactor, FormFactor>();
-
+builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 ZinzotNet.Services.ServiceCollection.Register(builder.Services);
 
 var app = builder.Build();
